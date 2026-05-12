@@ -26,6 +26,8 @@ This thesis addresses both problems. It contributes a complete, reproducible PCA
 
 > *"How can the integration of multiple heterogeneous datasets improve the performance and generalizability of a machine learning model in detecting intrusions in IoMT environments?"*
 
+The original problem statement, scope and supervisor-approved objectives of this thesis are documented in **`docs/thesis_offer_pantelis.pdf`**, included here for readers who want the formal context behind the research question above.
+
 The work delivers three principal contributions:
 
 1. **Systematic PCAP-level dataset unification via MIOTTA-NPT.** Two heterogeneous public IoMT datasets (**CICIoMT2024** and **IoMT-TrafficData**) are reprocessed from their original raw packet captures using the **MIOTTA-NPT** preprocessing tool with an identical configuration (combined mode, window size *W = 100* packets). This yields a structurally identical 73-feature representation across sources, eliminating tool-induced heterogeneity at the root. A three-level label-harmonization scheme (binary, 6-class categorical, 26-class fine-grained), an explicit quality-assurance stage and provenance tracking produce a single ML-ready dataset of **8,011,534 records × 58 features** after cleaning.
@@ -234,6 +236,9 @@ diploma-thesis-iomt-ids/
 ├── presentations/                     # Slide deck (PPTX)
 ├── references/                        # Academic / dataset reference PDFs + .bib
 ├── docs/                              # Auxiliary documentation
+│   ├── thesis_offer_pantelis.pdf      # Formal thesis-offer document: problem statement,
+│   │                                  # scope and supervisor-approved objectives
+│   └── _artifacts_readme_pdf/         # Rendered README artifacts
 │
 └── data/processed/                    # ONLY small reproducibility artifacts kept in Git:
     ├── phase1_iomt_unified/
@@ -259,9 +264,6 @@ This Git repository contains **only the code, notebooks, paper, report, slides, 
 | `data/processed/hospnet26_processed.joblib`       | 298 MB | Above GitHub's 100 MB per-file limit. Regenerable from HospNet26's combined Parquet files via the inference notebook. |
 | `results/`                                        | ~23 GB | Trained `.joblib` model files (some single files exceed **11 GB**). Beyond the size limit, serialized tree models can expose sensitive properties of the training data. Fully regenerable by running notebooks `08`/`09`/`10`. |
 | `venv/`                                           | ~750 MB | Local Python virtual environment, machine-specific. Recreate with the steps in Section 8. |
-| `docs/thesis_offer_pantelis.pdf`                  | <1 MB  | Personal thesis-offer agreement document. |
-| `TFM_helpful_reference_for_Pantelis_template.pdf` | 5 MB   | Personalised template reference (not a public artifact of the work). |
-| `report.zip`, `sechealth-paper-overleaf.zip`      | ~3 MB  | Redundant zipped archives — content already unzipped under `report/` and `paper/`. |
 | `*.env`, `*.key`, `*.pem`, `credentials.json`, `.DS_Store` | — | Defensive defaults to prevent accidental secret or OS-metadata commits. |
 
 Everything required to **rebuild the unified dataset and reproduce every result** is present in the repository in the form of source code, notebooks and small artifacts (scaler, metadata). The only step that requires external action is obtaining the raw datasets from their original providers.

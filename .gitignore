@@ -46,10 +46,8 @@ data/processed/hospnet26_processed.joblib
 results/
 
 # ===========================================================
-#  Personal / sensitive documents (signatures, personal IDs,
-#  thesis offer agreement – not for public/private code repo)
+#  Personal / personalised template files
 # ===========================================================
-docs/thesis_offer_pantelis.pdf
 TFM_helpful_reference_for_Pantelis_template.pdf
 
 # ===========================================================
