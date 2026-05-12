@@ -1,0 +1,41 @@
+% ── Abstract ──
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+The growing adoption of \gls{iomt} devices in healthcare environments has introduced significant cybersecurity challenges. These devices---ranging from wearable sensors to smart infusion pumps---transmit sensitive patient data across networks that are increasingly targeted by adversaries. While \gls{ml}-based \glspl{ids} have shown promise in detecting network intrusions, their effectiveness is fundamentally constrained by the quality and representativeness of the training data.
+
+A critical limitation in current research is the reliance on individual, isolated datasets that capture only a narrow slice of the attack landscape. Models trained on such data often fail to generalize across different network topologies, device configurations, and attack vectors. This thesis addresses this gap by proposing and executing a systematic methodology for integrating multiple heterogeneous \gls{iomt} and \gls{iot} network traffic datasets into a single, unified, \gls{ml}-ready dataset suitable for training robust \gls{ids} models.
+
+The methodology centers on the use of MIOTTA-NPT, a specialized network preprocessing tool that extracts a standardized set of statistical features from raw packet captures using a configurable window-based aggregation approach. By processing disparate datasets through a common feature extraction pipeline, the fundamental challenge of feature heterogeneity across datasets is resolved at the source. The integration pipeline further incorporates label harmonization across three granularity levels, data quality assurance procedures, feature scaling, and dataset provenance tracking to enable rigorous cross-domain evaluation.
+
+The resulting unified dataset preserves the diversity of the constituent sources---including varied attack types, network protocols, and device behaviors---while ensuring structural consistency required for effective model training. This work lays the essential groundwork for developing \gls{ids} models capable of generalizing across heterogeneous \gls{iomt} environments.
+
+\bigskip
+\textbf{Keywords:} Internet of Medical Things, Intrusion Detection System, Machine Learning, Dataset Integration, Network Traffic Analysis, Feature Extraction, Cybersecurity.
+
+\cleardoublepage
+
+% ── Resum (Catalan) ──
+\chapter*{Resum}
+\addcontentsline{toc}{chapter}{Resum}
+
+La creixent adopció de dispositius de l'Internet de les Coses Mèdiques (\gls{iomt}) en entorns sanitaris ha introduït reptes significatius de ciberseguretat. Aquests dispositius transmeten dades sensibles de pacients a través de xarxes cada vegada més amenaçades per adversaris. Tot i que els sistemes de detecció d'intrusions (\gls{ids}) basats en aprenentatge automàtic (\gls{ml}) han demostrat potencial, la seva eficàcia està limitada per la qualitat i representativitat de les dades d'entrenament.
+
+Aquesta tesi aborda la limitació de dependre de conjunts de dades individuals i aïllats. Es proposa i s'executa una metodologia sistemàtica per integrar múltiples conjunts de dades heterogenis de tràfic de xarxa \gls{iomt} i \gls{iot} en un únic conjunt de dades unificat i preparat per a \gls{ml}. La metodologia es basa en l'eina MIOTTA-NPT per a l'extracció estandarditzada de característiques estadístiques, complementada amb harmonització d'etiquetes, control de qualitat i seguiment de la procedència de les dades.
+
+\bigskip
+\textbf{Paraules clau:} Internet de les Coses Mèdiques, Detecció d'intrusions, Aprenentatge automàtic, Integració de dades, Anàlisi de tràfic de xarxa, Ciberseguretat.
+
+\cleardoublepage
+
+% ── Resumen (Spanish) ──
+\chapter*{Resumen}
+\addcontentsline{toc}{chapter}{Resumen}
+
+La creciente adopción de dispositivos del Internet de las Cosas Médicas (\gls{iomt}) en entornos sanitarios ha introducido desafíos significativos de ciberseguridad. Estos dispositivos transmiten datos sensibles de pacientes a través de redes cada vez más atacadas por adversarios. Aunque los sistemas de detección de intrusiones (\gls{ids}) basados en aprendizaje automático (\gls{ml}) han demostrado potencial, su eficacia está limitada por la calidad y representatividad de los datos de entrenamiento.
+
+Esta tesis aborda la limitación de depender de conjuntos de datos individuales y aislados. Se propone y ejecuta una metodología sistemática para integrar múltiples conjuntos de datos heterogéneos de tráfico de red \gls{iomt} e \gls{iot} en un único conjunto de datos unificado y preparado para \gls{ml}. La metodología se basa en la herramienta MIOTTA-NPT para la extracción estandarizada de características estadísticas, complementada con armonización de etiquetas, control de calidad y seguimiento de la procedencia de los datos.
+
+\bigskip
+\textbf{Palabras clave:} Internet de las Cosas Médicas, Detección de intrusiones, Aprendizaje automático, Integración de datos, Análisis de tráfico de red, Ciberseguridad.

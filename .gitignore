@@ -1,0 +1,89 @@
+# ===========================================================
+#  Python
+# ===========================================================
+venv/
+env/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.so
+
+# ===========================================================
+#  Jupyter
+# ===========================================================
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+*-checkpoint.ipynb
+
+# ===========================================================
+#  Raw datasets (CIC datasets are licensed by the Canadian
+#  Institute for Cybersecurity – redistribution is not allowed
+#  and the volume exceeds GitHub's repo size limits)
+# ===========================================================
+data/raw/
+
+# ===========================================================
+#  Processed datasets (very large CSV/Parquet/joblib > GitHub
+#  100 MB per-file limit and ~1 GB repo recommendation;
+#  fully regenerable from the raw data + pipeline code)
+# ===========================================================
+data/processed/*.csv
+data/processed/**/*.csv
+data/processed/*.parquet
+data/processed/**/*.parquet
+data/processed/hospnet26_processed.joblib
+
+# ===========================================================
+#  Trained models & evaluation artifacts
+#  (some .joblib files reach 11 GB; trained models can also
+#  expose sensitive properties of the training data)
+# ===========================================================
+results/
+
+# ===========================================================
+#  Personal / sensitive documents (signatures, personal IDs,
+#  thesis offer agreement – not for public/private code repo)
+# ===========================================================
+docs/thesis_offer_pantelis.pdf
+TFM_helpful_reference_for_Pantelis_template.pdf
+
+# ===========================================================
+#  Redundant archives – content already present unzipped
+# ===========================================================
+report.zip
+sechealth-paper-overleaf.zip
+
+# ===========================================================
+#  IDE / editors
+# ===========================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+
+# ===========================================================
+#  OS metadata
+# ===========================================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ===========================================================
+#  Secrets / environment
+# ===========================================================
+.env
+.env.*
+*.log
+*.pem
+*.key
+secrets.json
+credentials.json

@@ -1,0 +1,125 @@
+\chapter{Introduction}
+\label{ch:introduction}
+
+\section{Context and Motivation}
+\label{sec:context}
+
+The proliferation of connected devices in healthcare has given rise to the \gls{iomt}, an ecosystem of networked medical instruments, wearable sensors, patient monitors, and clinical infrastructure that communicate over heterogeneous network protocols. The \gls{iomt} represents one of the fastest-growing segments of the broader \gls{iot} landscape, driven by the promise of remote patient monitoring, automated diagnostics, and more efficient clinical workflows~\cite{enisa2023health}.
+
+However, this connectivity introduces a substantially enlarged attack surface. Medical devices---many of which were originally designed for isolated clinical networks---now operate in environments where they are exposed to the same classes of cyber threats that affect general-purpose computing systems, and in some cases, to domain-specific threats that exploit protocol weaknesses unique to healthcare deployments~\cite{domenech2024ensuring}. The consequences of successful intrusions in \gls{iomt} environments extend beyond data breaches; they can directly impact patient safety when devices responsible for drug infusion, vital sign monitoring, or surgical assistance are compromised.
+
+The European Union Agency for Cybersecurity (\gls{enisa}) reported that cyberattacks targeting the health sector increased significantly between 2021 and 2023, with ransomware, data exfiltration, and denial-of-service among the most prevalent threat categories~\cite{enisa2023health}. This trend underscores the urgent need for effective \gls{idps} mechanisms tailored to the operational constraints and communication patterns of \gls{iomt} environments.
+
+\Gls{ml}-based \glspl{ids} have emerged as a promising approach to address this challenge. Unlike signature-based systems that can only detect previously catalogued attacks, \gls{ml}-based systems learn behavioral patterns from network traffic data, enabling the detection of both known and novel attack vectors~\cite{chio2018machine}. Nevertheless, the effectiveness of these systems is fundamentally dependent on the quality, diversity, and representativeness of the datasets used for training.
+
+Herein lies a critical gap in the current state of research: most existing \gls{iomt} and \gls{iot} intrusion detection datasets are developed independently, using different network topologies, device configurations, feature extraction methodologies, and labeling conventions. Models trained on a single dataset tend to perform well under the conditions of that specific dataset but fail to generalize when deployed in different environments or confronted with previously unseen attack patterns~\cite{domenech2025evaluating}. This phenomenon---the lack of cross-domain generalizability---represents one of the most significant barriers to the practical deployment of \gls{ml}-based \gls{ids} in real-world healthcare settings.
+
+\section{Problem Statement}
+\label{sec:problem}
+
+The development of robust, generalizable \gls{ids} models for \gls{iomt} environments is hindered by the following interrelated problems:
+
+\begin{enumerate}[leftmargin=*, label=\textbf{P\arabic*.}]
+    \item \textbf{Dataset isolation.} Existing benchmark datasets for \gls{iomt} and \gls{iot} intrusion detection---such as CICIoMT2024~\cite{dadkhah2024ciciomt}, CICIoT2023~\cite{neto2023ciciot2023}, and IoMT-TrafficData---are developed independently, each capturing a limited subset of attack types, network protocols, and device behaviors. No single dataset provides comprehensive coverage of the threat landscape.
+
+    \item \textbf{Feature heterogeneity.} Different datasets employ different feature extraction tools and methodologies. For instance, one dataset may use flow-level statistics extracted by Zeek, while another uses packet-level features computed with DPKT. The resulting feature spaces are structurally incompatible, making direct concatenation or comparison infeasible without substantial preprocessing.
+
+    \item \textbf{Label inconsistency.} Attack taxonomies vary across datasets---one may label an attack as \textit{``DDoS\_TCP\_Flood''} while another records a similar pattern as \textit{``DoS''}. This absence of a unified labeling scheme prevents meaningful cross-dataset training and evaluation.
+
+    \item \textbf{Overfitting to single domains.} Models trained on a single dataset tend to overfit to the specific network conditions, traffic distributions, and attack characteristics present in that dataset, exhibiting poor detection rates when applied to traffic from different environments~\cite{domenech2025evaluating}.
+\end{enumerate}
+
+These problems collectively limit the practical applicability of current \gls{ml}-based \gls{ids} approaches and motivate the need for a principled methodology that integrates heterogeneous data sources into a unified, coherent dataset.
+
+\section{Research Question}
+\label{sec:rq}
+
+This thesis is guided by the following central research question:
+
+\begin{quote}
+\textit{How can the integration of multiple heterogeneous datasets improve the performance and generalizability of a machine learning model in detecting intrusions in IoMT environments?}
+\end{quote}
+
+This question encompasses both technical challenges (how to achieve meaningful integration despite structural differences) and empirical validation (whether the resulting unified dataset yields measurable improvements in model generalization).
+
+\section{Objectives}
+\label{sec:objectives}
+
+To address the research question, this thesis defines the following objectives:
+
+\begin{enumerate}[leftmargin=*, label=\textbf{O\arabic*.}]
+    \item \textbf{Data collection and exploratory analysis.} Acquire and thoroughly analyze multiple \gls{iomt} and \gls{iot} network traffic datasets, characterizing their structure, feature spaces, attack taxonomies, class distributions, and data quality attributes.
+
+    \item \textbf{Standardized feature extraction.} Apply the MIOTTA-NPT preprocessing tool to extract a uniform set of statistical features from the raw packet captures of each dataset, resolving feature heterogeneity at the source by ensuring all datasets share an identical feature space.
+
+    \item \textbf{Integration pipeline design and execution.} Design and implement a systematic pipeline for dataset integration that incorporates: label harmonization across multiple granularity levels, data quality assurance, feature scaling, and dataset provenance tracking. Execute this pipeline to produce a final, unified, \gls{ml}-ready dataset.
+
+    \item \textbf{Validation and quality assurance.} Validate the integrity and consistency of the unified dataset through statistical analysis, ensuring that the integration process preserves the informational content of the original sources while achieving structural coherence.
+
+    \item \textbf{Cross-domain evaluation readiness.} Establish the infrastructure for rigorous cross-domain evaluation by incorporating source attribution and stratified splitting strategies that enable assessment of model generalizability across the constituent datasets.
+\end{enumerate}
+
+Additionally, should the timeline permit, an extended objective is defined:
+
+\begin{enumerate}[leftmargin=*, label=\textbf{O\arabic*.}, start=6]
+    \item \textbf{IDS model development and evaluation (extended scope).} Train and evaluate \gls{ml}-based \gls{ids} models on the unified dataset, assessing their ability to generalize across the heterogeneous data sources and comparing their performance against models trained on individual datasets.
+\end{enumerate}
+
+\section{Scope and Limitations}
+\label{sec:scope}
+
+The primary scope of this thesis encompasses the complete data engineering pipeline---from raw packet captures to a validated, \gls{ml}-ready unified dataset. The work focuses on three principal datasets:
+
+\begin{itemize}
+    \item \textbf{CICIoMT2024}~\cite{dadkhah2024ciciomt}: A multi-protocol \gls{iomt} dataset containing 18 attack types across protocols including Wi-Fi, \gls{mqtt}, and \gls{ble}.
+    \item \textbf{IoMT-TrafficData}: An \gls{iomt} network traffic dataset capturing various attack categories in medical device environments.
+    \item \textbf{CICIoT2023}~\cite{neto2023ciciot2023}: A large-scale general \gls{iot} dataset providing broad attack coverage across 33 attack types.
+\end{itemize}
+
+The thesis explicitly differentiates between two integration phases: a first phase focusing on the semantic integration of the two \gls{iomt}-specific datasets, and a second phase incorporating the general \gls{iot} dataset through a pipeline-oriented approach.
+
+The following are considered outside the primary scope but may be addressed as extensions:
+
+\begin{itemize}
+    \item Training and evaluating complete \gls{ids} models (Objective~O6).
+    \item Real-time deployment or performance benchmarking of \gls{ids} systems.
+    \item Generation of new synthetic network traffic or adversarial samples.
+\end{itemize}
+
+\section{Methodology Overview}
+\label{sec:methodology}
+
+The methodology adopted in this thesis follows a structured, iterative approach comprising the following stages:
+
+\begin{enumerate}
+    \item \textbf{Dataset acquisition and individual exploration.} Each dataset is acquired in its original form and subjected to comprehensive exploratory data analysis, examining feature spaces, statistical properties, class distributions, data quality, and correlation structures.
+
+    \item \textbf{Feature standardization via MIOTTA-NPT.} Raw packet captures from each dataset are processed through the MIOTTA-NPT tool using a consistent configuration (combined mode, window size of 100 packets), yielding a uniform 73-feature statistical representation for each dataset.
+
+    \item \textbf{Cross-dataset compatibility analysis.} The MIOTTA-processed datasets are compared to verify feature alignment and identify any remaining differences in data distributions, value ranges, or quality characteristics.
+
+    \item \textbf{Integration pipeline design.} A multi-stage pipeline is designed, encompassing label harmonization (at binary, categorical, and fine-grained levels), missing value treatment, feature scaling, source attribution, and stratified dataset splitting.
+
+    \item \textbf{Pipeline execution and unified dataset generation.} The designed pipeline is implemented and executed, producing the final unified dataset with all quality assurance measures applied.
+
+    \item \textbf{Validation.} The resulting dataset is validated through statistical analysis and consistency checks to ensure it meets the requirements for \gls{ml} model training.
+\end{enumerate}
+
+\section{Thesis Structure}
+\label{sec:structure}
+
+The remainder of this thesis is organized as follows:
+
+\begin{description}
+    \item[Chapter~\ref{ch:state-of-art}] reviews the state of the art in \gls{iomt} security, \gls{ids} approaches, existing datasets, and preprocessing tools relevant to this work.
+
+    \item[Chapter~\ref{ch:solution-design}] presents the detailed specification and design of the integration methodology, including dataset selection rationale, the MIOTTA-NPT feature extraction approach, the two-phase integration strategy, and the label harmonization scheme.
+
+    \item[Chapter~\ref{ch:execution}] describes the development and execution of the integration pipeline, presenting the exploratory analyses, the cross-dataset compatibility verification, and the step-by-step construction of the unified dataset.
+
+    \item[Chapter~\ref{ch:experimentation}] presents the experimental evaluation: unified dataset quality assessment, \gls{ids} model training and evaluation on the preprocessed data, and a synthesis that addresses the research question in light of those empirical results.
+
+    \item[Chapter~\ref{ch:sustainability}] analyzes the sustainability and ethical implications of this work, covering environmental, economic, and social dimensions.
+
+    \item[Chapter~\ref{ch:conclusions}] summarizes the contributions, discusses limitations, and outlines directions for future research.
+\end{description}

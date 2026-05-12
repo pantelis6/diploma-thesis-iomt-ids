@@ -1,0 +1,97 @@
+\chapter{Conclusions and Future Work}
+\label{ch:conclusions}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Summary of Contributions}
+\label{sec:contributions}
+
+This thesis addressed the problem of dataset isolation, feature heterogeneity, and label inconsistency that hinder the development of generalizable machine-learning-based intrusion detection systems for the Internet of Medical Things. The work produced the following contributions:
+
+\begin{enumerate}[nosep]
+  \item \textbf{A reproducible integration methodology.}
+  A two-phase pipeline was designed and implemented that transforms two independently developed IoMT datasets (CICIoMT2024 and IoMT-TrafficData) into a single, ML-ready unified dataset of 8,011,534 records. The pipeline uses MIOTTA-NPT as the feature-unification enabler, a three-level label harmonization scheme, StandardScaler normalization, and source-attribution metadata to preserve provenance.
+
+  \item \textbf{Empirical evidence that integration improves generalizability.}
+  Three tree-based classifiers (Decision Tree, Random Forest, XGBoost) were trained under three regimes (CIC-only, IoMT-only, Unified). The unified regime consistently dominated: all three classifiers exceeded Macro-F1 of 0.94 on the full test set when trained on the unified data, versus $\leq$\,0.74 for the best single-source model on the same test mix. This 20+ percentage-point improvement demonstrates that the contribution of dataset integration is approximately 50$\times$ larger than the contribution of model complexity.
+
+  \item \textbf{Cross-domain evaluation framework.}
+  The source-attribution design enabled rigorous cross-domain testing: models trained on one source were evaluated on the other source's test slice. This framework quantified the generalization gap that motivates integration and established a reusable protocol for future multi-source IDS studies.
+
+  \item \textbf{Quantification of the laboratory-to-clinic gap.}
+  The models were deployed on 1.26 million unlabelled traffic windows from HospNet26, a real German hospital network dataset. The sharp drop in Benign prediction rate (3.7--10.0\%) quantified for the first time the covariate shift between laboratory-generated and real clinical traffic at the window-feature level, and led to the proposal of concrete recalibration strategies (few-shot Benign fine-tuning and threshold-based post-hoc calibration).
+
+  \item \textbf{Statistical validation.}
+  McNemar's test was applied to all pairwise model comparisons on the full test set ($N=1{,}201{,}731$), confirming that XGBoost's advantage is both statistically significant and practically meaningful ($\approx$3\% relative error reduction over DT and RF), while simultaneously demonstrating the importance of reporting effect sizes alongside $p$-values in large-sample settings.
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Research Question Revisited}
+\label{sec:rq-revisited}
+
+The research question posed in Section~\ref{sec:rq} was:
+
+\begin{quote}
+\textit{``How can the integration of multiple heterogeneous datasets improve the performance and generalizability of a machine learning model in detecting intrusions in IoMT environments?''}
+\end{quote}
+
+The answer, grounded in the empirical results of Chapter~\ref{ch:experimentation}, is threefold:
+
+\begin{enumerate}[nosep]
+  \item \textbf{How integration can be achieved:} by applying a uniform feature-extraction tool (MIOTTA-NPT) to the raw captures of each source, harmonizing labels into a shared taxonomy, and concatenating the resulting records with source-attribution metadata. This approach eliminates the structural barriers (different feature spaces, incompatible labels) that prevent naive concatenation.
+
+  \item \textbf{Whether it improves performance:} yes. Unified training raised Macro-F1 on the full heterogeneous test set from 0.70--0.74 (best single-source) to 0.948--0.952 (unified), with strong performance on all six attack categories including the rare Spoofing class (F1\,$\geq$\,0.98 despite 0.12\% prevalence).
+
+  \item \textbf{What the limits of this improvement are:} integration of laboratory sources improves cross-domain generalization \emph{among those sources}, but does not close the gap to real clinical environments. Deployment-level generalizability requires incorporating representative samples from the target operational network, as demonstrated by the HospNet26 evaluation.
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Limitations}
+\label{sec:limitations}
+
+The findings of this thesis should be interpreted in light of the following limitations:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Laboratory origin of training data.}
+  Both CICIoMT2024 and IoMT-TrafficData were generated in controlled or emulated testbed environments. Their traffic patterns, device populations, and background noise levels differ substantially from those of real clinical networks, as the HospNet26 experiment demonstrated quantitatively.
+
+  \item \textbf{Two-source integration only.}
+  The unified dataset integrates two IoMT-specific sources. The originally planned third source (CICIoT2023, a general IoT dataset) was not included in the current integration due to time constraints. Adding it would increase attack-type coverage and provide a third domain for cross-domain evaluation.
+
+  \item \textbf{Window size as a fixed hyperparameter.}
+  All feature extraction was performed with a fixed window size of 100 packets. The impact of window size on classification performance was not explored; smaller or larger windows may better capture certain attack patterns (e.g., slow-rate attacks or protocol-specific bursts).
+
+  \item \textbf{Label harmonization involves subjective decisions.}
+  The mapping from fine-grained attack names to six categories required domain-expert judgment. Alternative mappings (e.g., merging DDoS and DoS into a single class) would alter per-class metrics and could eliminate the DDoS/DoS confusion boundary.
+
+  \item \textbf{Absence of ground-truth labels in HospNet26.}
+  The hospital-traffic evaluation relies on the assumption that all HospNet26 windows are benign. If the hospital network contained real (undetected) attacks during the capture period, some of the observed ``false positives'' could in fact be true positives. This possibility cannot be verified without labelled ground truth.
+
+  \item \textbf{No deep-learning baselines.}
+  This thesis evaluated only tree-based models. While tree-based classifiers have been shown to match or exceed deep learning on tabular data~\cite{grinsztajn2022tree}, neural approaches (e.g., temporal CNNs or transformers operating on packet sequences) may capture patterns inaccessible to per-window statistical features.
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Future Work}
+\label{sec:future-work}
+
+Building on the contributions and limitations identified above, several concrete research directions emerge:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Benign-traffic recalibration with real clinical data.}
+  The most impactful next step is to close the laboratory-to-clinic gap quantified in Section~\ref{subsec:hospnet26}. Two strategies were proposed: (a)~few-shot Benign fine-tuning using a small supervised collection of confirmed-benign hospital windows, and (b)~threshold-based post-hoc calibration of model probability outputs. Evaluating both approaches on HospNet26 and measuring the required sample size for acceptable specificity ($\geq$80\%) is an immediate priority.
+
+  \item \textbf{Incorporation of additional data sources.}
+  Processing CICIoT2023 through MIOTTA-NPT and adding it to the unified dataset would extend attack-type coverage to 33 categories and introduce a third cross-domain evaluation axis. The existing pipeline is designed to support this extension with minimal modification.
+
+  \item \textbf{Advanced hyperparameter optimisation.}
+  Bayesian optimisation (e.g., Optuna with TPE) or multi-fidelity schedulers (Hyperband, BOHB) could improve upon the RandomizedSearchCV budget used in this thesis, particularly for XGBoost where the search space is high-dimensional. Such tools should be applied within the same outer train/validation/test discipline to preserve comparability.
+
+  \item \textbf{Feature engineering for the DDoS/DoS boundary.}
+  The persistent DDoS/DoS confusion ($>$99\% of all errors across all three models) is a feature-representation limitation, not a model-capacity limitation. Extracting features that capture source-address diversity (e.g., unique source IPs per window) or flow-volume asymmetry from the raw pcap files could break this boundary. This would require re-running the Phase~1 pipeline with an extended MIOTTA configuration or a supplementary feature-extraction step.
+
+  \item \textbf{Deep-learning and sequence models.}
+  Exploring temporal architectures (1D-CNN, LSTM, Transformer) that operate on sequences of packets rather than pre-aggregated window statistics may capture attack dynamics invisible to per-window features. MIOTTA-NPT's \emph{nPrint} mode, which produces per-packet binary representations, provides a natural input format for such models.
+
+  \item \textbf{Real-time deployment considerations.}
+  Translating the offline models into an operational IDS prototype---with constraints on inference latency, memory footprint, and alert management---is a necessary step toward practical impact. The tree-based models used here have favorable inference costs, but the integration with a network tap, the handling of concept drift, and the alert-fatigue implications of the observed false-positive rates (Section~\ref{subsec:hospnet26}) require dedicated engineering.
+\end{enumerate}

@@ -1,0 +1,128 @@
+\documentclass[12pt, a4paper, twoside]{report}
+
+% ── Encoding & Language ──
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+% ── Page Layout ──
+\usepackage[
+  top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm,
+  headheight=14pt
+]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% ── Fonts ──
+\usepackage{lmodern}
+% \usepackage{microtype}  % Re-enable for final print version (adds ~15s compile time)
+
+% ── Headers & Footers ──
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\nouppercase{\leftmark}}
+\fancyhead[RO]{\nouppercase{\rightmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Graphics & Figures ──
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage[font=small, labelfont=bf]{caption}
+\usepackage{subcaption}
+
+% ── Tables ──
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{array}
+
+% ── Math ──
+\usepackage{amsmath, amssymb}
+
+% ── Colors & Links ──
+\usepackage[dvipsnames]{xcolor}
+\usepackage[
+  colorlinks=true,
+  linkcolor=NavyBlue,
+  citecolor=ForestGreen,
+  urlcolor=RoyalPurple,
+  bookmarks=true,
+  pdfauthor={Pantelis Petrakis},
+  pdftitle={AI-Based Intrusion Detection for IoMT Environments},
+  pdfsubject={Master's Thesis -- UPC BarcelonaTech}
+]{hyperref}
+
+% ── Bibliography ──
+\usepackage[
+  backend=bibtex,
+  style=ieee,
+  sorting=nyt,
+  maxbibnames=6
+]{biblatex}
+\addbibresource{references.bib}
+
+% ── Acronyms (lightweight, no external tools needed) ──
+\input{backmatter/acronyms}
+
+% ── Misc ──
+\usepackage{enumitem}
+\usepackage{csquotes}
+
+% ── Custom Commands ──
+\newcommand{\thesistitle}{AI-Based Intrusion Detection for IoMT Environments}
+\newcommand{\authorname}{Pantelis Petrakis}
+\newcommand{\supervisor}{René Serral Gracià}
+\newcommand{\advisors}{Josep Pegueroles \and Jordi Doménech}
+\newcommand{\university}{Universitat Politècnica de Catalunya (UPC) -- BarcelonaTech}
+\newcommand{\faculty}{Facultat d'Informàtica de Barcelona (FIB)}
+\newcommand{\degree}{Master's Degree in Innovation and Research in Informatics}
+\newcommand{\specialization}{Computer Networks and Distributed Systems}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ── Front Matter ──
+\pagenumbering{roman}
+
+\input{frontmatter/cover}
+\cleardoublepage
+
+\input{frontmatter/abstract}
+\cleardoublepage
+
+\tableofcontents
+\cleardoublepage
+
+\listoffigures
+\cleardoublepage
+
+\listoftables
+\cleardoublepage
+
+\input{backmatter/acronym_table}
+\cleardoublepage
+
+% ── Main Matter ──
+\pagenumbering{arabic}
+
+\input{chapters/ch1_introduction}
+\input{chapters/ch2_state_of_art}
+\input{chapters/ch3_solution_design}
+\input{chapters/ch4_execution}
+\input{chapters/ch5_experimentation}
+\input{chapters/ch6_sustainability}
+\input{chapters/ch7_conclusions}
+
+% ── Back Matter ──
+\printbibliography[heading=bibintoc, title={Bibliography}]
+
+% ── Appendices ──
+% \appendix
+% \input{backmatter/appendix_a}  % Future: supplementary tables, code, etc.
+
+\end{document}

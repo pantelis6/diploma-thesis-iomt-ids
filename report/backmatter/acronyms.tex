@@ -1,0 +1,50 @@
+% ── Lightweight Acronym Macros ──
+% Replaces the heavy 'glossaries' package to avoid Overleaf compile timeouts.
+
+\makeatletter
+\newcommand{\defacro}[2]{%
+  \expandafter\newcommand\csname acro@#1\endcsname{#2}%
+}
+\newcommand{\gls}[1]{\csname acro@#1\endcsname}
+\let\Gls\gls
+\newcommand{\glspl}[1]{\csname acro@#1\endcsname s}
+\let\Glspl\glspl
+\makeatother
+
+\defacro{iomt}{IoMT}
+\defacro{iot}{IoT}
+\defacro{ids}{IDS}
+\defacro{ips}{IPS}
+\defacro{idps}{IDPS}
+\defacro{nids}{NIDS}
+\defacro{hids}{HIDS}
+\defacro{aids}{AIDS}
+\defacro{sids}{SIDS}
+\defacro{ml}{ML}
+\defacro{dl}{DL}
+\defacro{ai}{AI}
+\defacro{ddos}{DDoS}
+\defacro{dos}{DoS}
+\defacro{arp}{ARP}
+\defacro{mqtt}{MQTT}
+\defacro{coap}{CoAP}
+\defacro{tcp}{TCP}
+\defacro{udp}{UDP}
+\defacro{icmp}{ICMP}
+\defacro{pcap}{PCAP}
+\defacro{csv}{CSV}
+\defacro{iat}{IAT}
+\defacro{ttl}{TTL}
+\defacro{cic}{CIC}
+\defacro{upc}{UPC}
+\defacro{cnn}{CNN}
+\defacro{rnn}{RNN}
+\defacro{rf}{RF}
+\defacro{dt}{DT}
+\defacro{svm}{SVM}
+\defacro{knn}{kNN}
+\defacro{xgb}{XGBoost}
+\defacro{tsc}{TSC}
+\defacro{npt}{NPT}
+\defacro{ble}{BLE}
+\defacro{enisa}{ENISA}

@@ -1,0 +1,97 @@
+\chapter{Analysis of Sustainability and Ethical Implications}
+\label{ch:sustainability}
+
+In accordance with the guidelines established by the Governing Council of the Universitat Politècnica de Catalunya, this chapter analyzes the sustainability and ethical implications of the work presented in this thesis. The analysis is structured around three dimensions: environmental sustainability, economic sustainability, and social impact, followed by an examination of the ethical considerations specific to cybersecurity research.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Environmental Sustainability}
+\label{sec:environmental}
+
+\subsection{Resource Consumption during Development}
+
+The computational work in this thesis primarily involves data preprocessing, dataset manipulation, and exploratory analysis. These tasks are executed on standard personal computing hardware, without requiring access to high-performance computing clusters or specialized GPU infrastructure---at least within the primary scope (dataset integration).
+
+The MIOTTA-NPT tool is designed for efficient single-pass processing of \gls{pcap} files, minimizing redundant computation. The integration pipeline operates on already-extracted CSV files, avoiding repeated processing of raw traffic captures.
+
+\subsection{Potential Environmental Impact of Extended Scope}
+
+Should the thesis be extended to include \gls{ml} model training (Objective~O6), the computational requirements would increase. Model training, particularly for \gls{dl} architectures, can consume significant energy. To mitigate this impact, the following practices are planned:
+
+\begin{itemize}
+    \item Prioritizing computationally efficient algorithms (e.g., \gls{rf}, \gls{xgb}) before exploring more resource-intensive \gls{dl} models.
+    \item Using early stopping and efficient hyperparameter search strategies to avoid unnecessary computation.
+    \item Leveraging the stratified dataset splits to enable meaningful evaluation without the need for exhaustive cross-validation.
+\end{itemize}
+
+\subsection{Positive Environmental Contribution}
+
+The methodology developed in this thesis reduces future computational waste by providing a reusable, validated, \gls{ml}-ready dataset. Without this unified dataset, researchers would need to independently perform the feature extraction, harmonization, and quality assurance work for each experiment, multiplying the computational effort across the research community.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Economic Sustainability}
+\label{sec:economic}
+
+\subsection{Development Costs}
+
+The tools and technologies used in this thesis are predominantly open-source:
+
+\begin{itemize}
+    \item \textbf{MIOTTA-NPT}: Open-source, publicly available on GitHub.
+    \item \textbf{Programming environment}: Python with open-source libraries (Pandas, NumPy, Matplotlib, Scikit-learn).
+    \item \textbf{Datasets}: All three datasets (CICIoMT2024, IoMT-TrafficData, CICIoT2023) are publicly available for research purposes.
+    \item \textbf{Report preparation}: \LaTeX\ with open-source packages.
+\end{itemize}
+
+No commercial software licenses or paid cloud computing services were required for the primary scope of the thesis, keeping the direct economic cost minimal.
+
+\subsection{Reusability and Long-Term Value}
+
+The unified dataset and the documented integration methodology constitute reusable research assets. Future researchers at UPC or elsewhere can:
+
+\begin{itemize}
+    \item Use the unified dataset directly for \gls{ids} model experiments.
+    \item Extend the pipeline to incorporate new datasets as they become available.
+    \item Adapt the label harmonization scheme for different classification objectives.
+\end{itemize}
+
+This reusability amplifies the return on the initial development investment.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Social Impact}
+\label{sec:social}
+
+\subsection{Contribution to Healthcare Cybersecurity}
+
+The long-term objective of this research line---developing robust \gls{ids} for \gls{iomt} environments---has a direct positive social impact. As medical devices become increasingly connected, the cybersecurity of healthcare systems directly affects the quality and safety of patient care. By contributing to the development of more generalizable intrusion detection capabilities, this work supports the protection of critical healthcare infrastructure.
+
+\subsection{Knowledge Dissemination}
+
+The thesis contributes to the academic community by:
+
+\begin{itemize}
+    \item Documenting a reproducible methodology for multi-dataset integration that can be applied beyond the \gls{iomt} domain.
+    \item Providing the unified dataset as a benchmark for future \gls{ids} research.
+    \item Extending the validation of the MIOTTA-NPT tool across multiple independent datasets.
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Ethical Implications}
+\label{sec:ethical}
+
+\subsection{Data Privacy and Sensitivity}
+
+The datasets used in this thesis consist of network traffic captures from controlled testbed and laboratory environments, not from production healthcare networks. They do not contain real patient data, personal health information, or identifiable patient records. The CICIoMT2024 and IoMT-TrafficData datasets were captured in simulated hospital environments, while CICIoT2023 was generated in a controlled \gls{iot} testbed.
+
+The MIOTTA-NPT feature extraction process further mitigates any residual privacy concerns by aggregating raw packet data into statistical features that do not preserve individual network identifiers (IP addresses, MAC addresses, port numbers) in the final dataset.
+
+\subsection{Responsible Use of Security Research}
+
+The methodologies developed in this thesis are intended exclusively for defensive cybersecurity research. The unified dataset is designed to train systems that protect healthcare environments from cyber threats. However, it is recognized that detailed knowledge of attack patterns could theoretically be used to design evasion strategies.
+
+This risk is mitigated by the focus of this work on the data engineering aspects of \gls{ids} development rather than on specific attack signatures or detection thresholds. The thesis does not introduce new attack techniques or disclose vulnerabilities in specific systems.
+
+\subsection{Bias and Fairness Considerations}
+
+The integration of multiple datasets introduces considerations of representation bias: the unified dataset reflects the network topologies, device configurations, and attack scenarios chosen by the original dataset creators. Models trained on this data should not be assumed to generalize to all possible \gls{iomt} environments without further validation.
+
+The source attribution mechanism incorporated in the pipeline enables the detection and analysis of any source-specific biases in model predictions, supporting fairness-aware evaluation practices.
