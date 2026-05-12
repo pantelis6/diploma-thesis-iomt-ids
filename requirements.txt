@@ -1,4 +1,6 @@
-# Diploma Thesis - IoT/IoMT Network Intrusion Detection
+# Diploma Thesis - IoMT Network Intrusion Detection
+# Unifying Heterogeneous IoMT Datasets for Intrusion Detection:
+# From Laboratory Testbeds to Real Hospital Network Evaluation.
 # Python >= 3.10
 
 # Data manipulation & analysis
