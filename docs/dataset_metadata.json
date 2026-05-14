@@ -29,7 +29,7 @@
       "Each MIOTTA CSV row is one statistical feature vector for a window.",
       "Rows from both sources are concatenated with provenance columns.",
       "QA: drop high-NaN features, impute remaining NaNs with 0, replace infinities, drop zero-variance numeric columns.",
-      "Near-zero-variance columns are flagged below but kept in the matrix for reproducibility.",
+      "Near-zero-variance columns are flagged (see flagged_but_not_removed and summary.near_zero_variance_feature_names) but are NOT dropped by the code.",
       "Duplicate rows (identical feature vectors) are removed.",
       "All numeric features cast to float32."
     ],
@@ -42,7 +42,122 @@
     ],
     "near_zero_variance_note": "Variance > 0 but below 1e-8 on the unified pre-split frame. These columns are numerically almost constant but are still present in train/val/test CSV exports."
   },
+  "removed_numeric_features": {
+    "miotta_numeric_columns_before_qa": 73,
+    "miotta_numeric_columns_after_qa": 58,
+    "code_references": {
+      "nan_threshold_constant": "src/pipeline/config.py :: NAN_THRESHOLD = 0.5",
+      "implementation": "src/pipeline/quality.py — treat_missing_values (NaN drop), remove_zero_variance, detect_near_zero_variance (flag only)"
+    },
+    "steps": [
+      {
+        "step": "high_missing_rate_drop",
+        "rule": "Drop any numeric feature whose NaN rate exceeds NAN_THRESHOLD (0.5 = 50%). Remaining NaNs in kept columns are imputed with 0.",
+        "reason_summary_en": "Columns missing for most rows carry little usable signal and would dominate as missingness artefacts; the pipeline drops them.",
+        "count": 8,
+        "columns_removed": [
+          {
+            "name": "fin_flag_number",
+            "observed_nan_rate_unified_corpus": "98.28%",
+            "reason_plain_en": "Almost always missing in the merged MIOTTA tables — likely a legacy/alternate TCP FIN counter not populated in this export (active flag counts use columns such as fin_count)."
+          },
+          {
+            "name": "syn_flag_number",
+            "observed_nan_rate_unified_corpus": "98.28%",
+            "reason_plain_en": "Same pattern as fin_flag_number — unused/legacy SYN counter field."
+          },
+          {
+            "name": "rst_flag_number",
+            "observed_nan_rate_unified_corpus": "98.28%",
+            "reason_plain_en": "Same pattern — unused legacy RST counter field."
+          },
+          {
+            "name": "psh_flag_number",
+            "observed_nan_rate_unified_corpus": "98.28%",
+            "reason_plain_en": "Same pattern — unused legacy PSH counter field."
+          },
+          {
+            "name": "ack_flag_number",
+            "observed_nan_rate_unified_corpus": "98.28%",
+            "reason_plain_en": "Same pattern — unused legacy ACK counter field."
+          },
+          {
+            "name": "ece_flag_number",
+            "observed_nan_rate_unified_corpus": "98.28%",
+            "reason_plain_en": "Same pattern — unused legacy ECE counter field."
+          },
+          {
+            "name": "cwr_flag_number",
+            "observed_nan_rate_unified_corpus": "98.28%",
+            "reason_plain_en": "Same pattern — unused legacy CWR counter field."
+          },
+          {
+            "name": "tcp_flags_ece",
+            "observed_nan_rate_unified_corpus": "98.28%",
+            "reason_plain_en": "Same pattern — redundant/unpopulated ECE-related field in this export (ECE-related behaviour is represented elsewhere, e.g. tcp_flags_cwr and aggregate TCP statistics)."
+          }
+        ]
+      },
+      {
+        "step": "zero_variance_drop",
+        "rule": "After NaN handling, drop any numeric feature whose variance on the full unified frame (pre-split) is exactly 0.",
+        "reason_summary_en": "A column that never changes carries no discriminative information for supervised learning and can cause numerical issues in some models.",
+        "count": 7,
+        "columns_removed": [
+          {
+            "name": "DHCP",
+            "reason_plain_en": "Constant across the unified corpus — DHCP traffic effectively absent in these PCAP-derived windows for both IoMT sources."
+          },
+          {
+            "name": "ARP",
+            "reason_plain_en": "Constant (zero variance) on the unified table for this MIOTTA configuration — no usable cross-row variation."
+          },
+          {
+            "name": "IPV4",
+            "reason_plain_en": "Constant indicator in this export — no cross-row variation after MIOTTA processing."
+          },
+          {
+            "name": "LLC",
+            "reason_plain_en": "Constant — LLC-layer signal does not vary across rows in this combined-mode feature extract."
+          },
+          {
+            "name": "Drate",
+            "reason_plain_en": "Degenerate column (zero variance) on the merged dataset — likely numerically redundant with other rate statistics."
+          },
+          {
+            "name": "Fwd_Data_Pkts_Tot",
+            "reason_plain_en": "Zero variance on the unified table — forward data-plane packet total does not vary in the retained representation; related information remains in other directional counters."
+          },
+          {
+            "name": "Bwd_Data_Pkts_Tot",
+            "reason_plain_en": "Zero variance on the unified table — backward analogue of Fwd_Data_Pkts_Tot."
+          }
+        ]
+      }
+    ],
+    "total_numeric_columns_removed": 15,
+    "note_on_provenance": "These removals apply only to MIOTTA numeric feature columns. Provenance columns (attack_type, source_file, source_dataset, attack_group) and harmonised labels (label_binary, label_category, label_fine) are added separately and are not part of the 73→58 count."
+  },
+  "flagged_but_not_removed": {
+    "step": "near_zero_variance_detection",
+    "rule": "Variance > 0 but < NEAR_ZERO_VAR_THRESHOLD (1e-8) — flagged for documentation only; columns are NOT dropped by this step.",
+    "columns": [
+      "IGMP",
+      "Fwd_IAT",
+      "Bwd_IAT",
+      "Flow_IAT"
+    ],
+    "count": 4,
+    "reason_summary_en": "Numerically almost constant but still technically variable; kept so exported CSV/Parquet, scaler.joblib, and published experiments stay aligned."
+  },
+  "duplicate_rows_removed": {
+    "rule": "Remove rows that are exact duplicates on the numeric feature vector (first occurrence kept).",
+    "note": "This removes duplicate windows, not columns. Last logged notebook run: 596,662 rows (~6.93% of the pre-dedup unified frame). Re-run the pipeline if raw inputs change — counts are data-dependent.",
+    "code_reference": "src/pipeline/quality.py :: remove_duplicates"
+  },
+  "evidence_note_en": "The dropped-column names and NaN rates were captured from the Phase 1 QA stdout in notebooks/07_phase1_iomt_unification.ipynb (unified CICIoMT2024 + IoMT-TrafficData run). If MIOTTA versions or PCAP subsets change, re-run QA — the dropped set may differ.",
   "how_to_read_this_file": [
+    "Read `removed_numeric_features` first to see which MIOTTA columns were dropped during QA and why (73 → 58).",
     "Use `columns` for every model input feature in order of training.",
     "Use `metadata_columns` + `label_columns` for human-readable semantics and interview answers.",
     "For formal MIOTTA definitions of each statistic, cite the MIOTTA-NPT paper/tool documentation; this JSON summarises intent in plain language."
