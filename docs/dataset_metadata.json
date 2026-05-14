@@ -1,0 +1,579 @@
+{
+  "schema_version": "1.0",
+  "title": "Unified IoMT laboratory dataset (Phase 1) — column dictionary",
+  "language": "en",
+  "last_updated": "2026-05-14",
+  "source_artifact": "data/processed/phase1_iomt_unified_mqtt_category/metadata.joblib",
+  "category_scheme": "mqtt",
+  "summary": {
+    "sources": [
+      {
+        "id": "CICIoMT2024",
+        "description": "Public IoMT benchmark (UNB/CIC). Rows are MIOTTA-NPT windows from PCAP captures."
+      },
+      {
+        "id": "IoMT-TrafficData",
+        "description": "Public IoMT hospital-style testbed traffic (INESC TEC / University of Coimbra). MIOTTA-NPT windows from PCAP captures."
+      }
+    ],
+    "total_unified_rows": 8011534,
+    "split_sizes_rows": {
+      "train": 5608073,
+      "val": 1201730,
+      "test": 1201731
+    },
+    "split_policy": "Stratified 70% train / 15% validation / 15% test on label_category (seed=42).",
+    "scaling": "StandardScaler fit on TRAIN features only; same transform applied to val/test (no leakage). Scaler saved as scaler.joblib next to this metadata.",
+    "feature_pipeline": [
+      "Raw PCAPs per dataset are processed externally by MIOTTA-NPT (combined mode, window size W=100 packets).",
+      "Each MIOTTA CSV row is one statistical feature vector for a window.",
+      "Rows from both sources are concatenated with provenance columns.",
+      "QA: drop high-NaN features, impute remaining NaNs with 0, replace infinities, drop zero-variance numeric columns.",
+      "Near-zero-variance columns are flagged below but kept in the matrix for reproducibility.",
+      "Duplicate rows (identical feature vectors) are removed.",
+      "All numeric features cast to float32."
+    ],
+    "n_numeric_features_final": 58,
+    "near_zero_variance_feature_names": [
+      "IGMP",
+      "Fwd_IAT",
+      "Bwd_IAT",
+      "Flow_IAT"
+    ],
+    "near_zero_variance_note": "Variance > 0 but below 1e-8 on the unified pre-split frame. These columns are numerically almost constant but are still present in train/val/test CSV exports."
+  },
+  "how_to_read_this_file": [
+    "Use `columns` for every model input feature in order of training.",
+    "Use `metadata_columns` + `label_columns` for human-readable semantics and interview answers.",
+    "For formal MIOTTA definitions of each statistic, cite the MIOTTA-NPT paper/tool documentation; this JSON summarises intent in plain language."
+  ],
+  "columns": [
+    {
+      "name": "Window",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Sliding packet-window index within the flow (MIOTTA windowing).",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Header_Length",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Aggregate header length statistics for packets in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Protocol_Type",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Encoded dominant protocol type observed in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "TTL",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Time-to-live field statistics (IP layer) within the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "HTTP",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "HTTP traffic indicator / count in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "HTTPS",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "HTTPS (TLS) traffic indicator / count in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "DNS",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "DNS traffic indicator / count in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Telnet",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Telnet traffic indicator / count in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "SMTP",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "SMTP traffic indicator / count in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "SSH",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "SSH traffic indicator / count in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "IRC",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "IRC traffic indicator / count in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "TCP",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "TCP traffic indicator / count in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "UDP",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "UDP traffic indicator / count in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "ICMP",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "ICMP traffic indicator / count in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "IGMP",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "IGMP traffic indicator / count in the window (often near-zero in these sources).",
+      "near_zero_variance": true
+    },
+    {
+      "name": "IAT",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Inter-arrival time statistics aggregated at window level.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Tot_size",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Total packet size (bytes) aggregated in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "tcp_analysis_initial_rtt",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Initial RTT estimate from TCP analysis.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "tcp_connection_fin",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "TCP FIN flag / connection-teardown related signal in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "tcp_connection_syn",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "TCP SYN flag / connection-establishment related signal in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "tcp_flags_cwr",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "TCP CWR (congestion window reduced) flag statistics.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "tcp_urgent_pointer",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "TCP urgent pointer usage statistics.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "ip_frag_offset",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "IP fragmentation offset related statistics.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "eth_src_not_group",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Ethernet source not in known group (link-layer heuristic signal).",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Rate",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Overall packet or byte rate in the window (throughput-style feature).",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Srate",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Secondary rate feature (directional or smoothed rate component).",
+      "near_zero_variance": false
+    },
+    {
+      "name": "ack_count",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Count of TCP ACK segments observed in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "syn_count",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Count of TCP SYN segments observed in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "fin_count",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Count of TCP FIN segments observed in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "rst_count",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Count of TCP RST segments observed in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Bytes",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Byte volume statistics for traffic in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Min_Length",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Minimum packet length observed in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Max_Length",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Maximum packet length observed in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Avg_Length",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Average packet length in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Std_Length",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Standard deviation of packet lengths in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Number",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Packet count or flow cardinality style statistic for the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Magnite",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Magnitude statistic of the flow/window (MIOTTA combined feature).",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Radius",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Radius statistic describing spread of packet sizes/timing (MIOTTA).",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Covariance",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Covariance between forward/backward size or timing components.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Var_Ratio",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Variance ratio between directional components (forward vs backward).",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Weight",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Weighted aggregate statistic used by MIOTTA combined mode.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Orig_Bytes",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Bytes observed on the originator (forward) direction.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Resp_Bytes",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Bytes observed on the responder (backward) direction.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Orig_Pkts",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Packet count on the originator (forward) direction.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Resp_Pkts",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Packet count on the responder (backward) direction.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Fwd_Pkts_Tot",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Total forward-direction packets in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Bwd_Pkts_Tot",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Total backward-direction packets in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Fwd_Pkts_Per_Sec",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Forward packets per second (window-normalised rate).",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Bwd_Pkts_Per_Sec",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Backward packets per second (window-normalised rate).",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Flow_Pkts_Per_Sec",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Total flow packets per second (window-normalised rate).",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Fwd_Header_Size",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Forward-direction header size aggregate.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Bwd_Header_Size",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Backward-direction header size aggregate.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Fwd_Pkts_Payload",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Forward-direction payload bytes aggregate.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Bwd_Pkts_Payload",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Backward-direction payload bytes aggregate.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Flow_Pkts_Payload",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Total payload bytes across both directions in the window.",
+      "near_zero_variance": false
+    },
+    {
+      "name": "Fwd_IAT",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Forward inter-arrival time statistics (often low variance in some captures).",
+      "near_zero_variance": true
+    },
+    {
+      "name": "Bwd_IAT",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "Backward inter-arrival time statistics.",
+      "near_zero_variance": true
+    },
+    {
+      "name": "Flow_IAT",
+      "role": "numeric_feature",
+      "dtype_in_export": "float32",
+      "miotta_mode": "combined_window_W100",
+      "description": "End-to-end flow inter-arrival time statistics.",
+      "near_zero_variance": true
+    }
+  ],
+  "metadata_columns": [
+    {
+      "name": "attack_type",
+      "role": "provenance_label_raw",
+      "dtype_in_export": "string",
+      "description": "Exact attack/benign label string inferred from the MIOTTA CSV filename (after prefix/suffix stripping)."
+    },
+    {
+      "name": "attack_group",
+      "role": "provenance_label_normalised",
+      "dtype_in_export": "string",
+      "description": "For CICIoMT2024: attack_type with trailing numeric variant suffix removed so keys match the harmonisation map (e.g. ...-ICMP3 -> ...-ICMP). For IoMT-TrafficData: identical to attack_type."
+    },
+    {
+      "name": "source_file",
+      "role": "provenance",
+      "dtype_in_export": "string",
+      "description": "Original MIOTTA output CSV filename this row was loaded from."
+    },
+    {
+      "name": "source_dataset",
+      "role": "provenance",
+      "dtype_in_export": "string",
+      "description": "Logical dataset name: 'CICIoMT2024' or 'IoMT-TrafficData'. Used to build single-source training regimes (B1/B2) and slice-wise evaluation."
+    }
+  ],
+  "label_columns": [
+    {
+      "name": "label_binary",
+      "role": "target_level_1",
+      "dtype_in_export": "string",
+      "values": [
+        "Benign",
+        "Attack"
+      ],
+      "description": "Binary intrusion target derived from label_category."
+    },
+    {
+      "name": "label_category",
+      "role": "target_level_2",
+      "dtype_in_export": "string",
+      "values": [
+        "Benign",
+        "DDoS",
+        "DoS",
+        "MQTT",
+        "Reconnaissance",
+        "Spoofing"
+      ],
+      "description": "Six-class teaching target used in the thesis experiments (MQTT scheme). MQTT-specific attacks are grouped under 'MQTT' instead of being folded into DoS/Recon."
+    },
+    {
+      "name": "label_fine",
+      "role": "target_level_3",
+      "dtype_in_export": "string",
+      "description": "Fine-grained label: for CICIoMT2024 equals attack_group; for IoMT-TrafficData mapped via IOMT_FINE_MAP to a stable snake_case taxonomy."
+    }
+  ],
+  "other_variant": {
+    "path": "data/processed/phase1_iomt_unified/metadata.joblib",
+    "category_scheme": "nature",
+    "difference": "In 'nature' scheme, MQTT floods map to DoS/DDoS/Injection-style categories instead of a dedicated MQTT class. Feature list is the same 58 columns."
+  }
+}
