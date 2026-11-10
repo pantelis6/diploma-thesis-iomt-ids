@@ -1,0 +1,244 @@
+\documentclass[12pt, a4paper, twoside]{report}
+
+% ══════════════════════════════════════════════════════════════════════════════
+% NTUA (Artemis) edition of the thesis. Identical to main.tex except for:
+%   - Greek NTUA covers (frontmatter/ntua/), Περίληψη, Εκτεταμένη Περίληψη,
+%   - Πλαίσιο Εκπόνησης; then the unchanged English Abstract / chapters.
+%   - single arabic page numbering throughout.
+% Compile from this directory:  tectonic main_ntua.tex
+% Submission PDF:               ntua/main_ntua_final.pdf
+% ══════════════════════════════════════════════════════════════════════════════
+
+% ── Encoding & Language ──
+% fontspec must be loaded before fontenc so that T1/Latin Modern stays the
+% default for the (unchanged) English body; Unicode fonts are used only for Greek.
+\usepackage[no-math]{fontspec}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[greek, english]{babel}
+
+% ── Page Layout ──
+\usepackage[
+  top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm,
+  headheight=14pt
+]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% ── Fonts ──
+\usepackage{lmodern}
+\usepackage{helvet}  % Helvetica on cover (UPC sticker style)
+% \usepackage{microtype}  % Re-enable for final print version (adds ~15s compile time)
+
+% Computer Modern Unicode: same design as Latin Modern, with Greek glyphs.
+\newfontfamily\greekfont{cmunrm.otf}[
+  NFSSFamily=cmugr,
+  BoldFont=cmunbx.otf,
+  ItalicFont=cmunti.otf,
+  BoldItalicFont=cmunbi.otf,
+  SlantedFont=cmunsl.otf
+]
+
+% ── Headers & Footers ──
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\nouppercase{\leftmark}}
+\fancyhead[RO]{\nouppercase{\rightmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Graphics & Figures ──
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage[font=small, labelfont=bf]{caption}
+\usepackage{subcaption}
+
+% ── Tables ──
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{array}
+
+% ── Math ──
+\usepackage{amsmath, amssymb}
+
+% ── Colors & Links ──
+\usepackage[dvipsnames]{xcolor}
+\usepackage[
+  colorlinks=true,
+  linkcolor=NavyBlue,
+  citecolor=ForestGreen,
+  urlcolor=RoyalPurple,
+  bookmarks=true,
+  pdfauthor={Pantelis Petrakis},
+  pdftitle={AI Based Intrusion Detection for IoMT Environments},
+  pdfsubject={Master's Thesis -- UPC BarcelonaTech}
+]{hyperref}
+
+% ── Bibliography ──
+\usepackage[
+  backend=bibtex,
+  style=ieee,
+  sorting=none,
+  maxbibnames=6
+]{biblatex}
+\addbibresource{references.bib}
+
+% ── Acronyms (lightweight, no external tools needed) ──
+\input{backmatter/acronyms}
+
+% ── Misc ──
+\usepackage{enumitem}
+\usepackage{csquotes}
+
+% ── Custom Commands ──
+\newcommand{\thesistitle}{AI Based Intrusion Detection for IoMT Environments}
+\newcommand{\authorname}{Pantelis Petrakis}
+\newcommand{\supervisor}{René Serral Gracià}
+\newcommand{\advisors}{Josep Pegueroles \and Jordi Doménech}
+\newcommand{\university}{Universitat Politècnica de Catalunya (UPC) -- BarcelonaTech}
+\newcommand{\faculty}{Facultat d'Informàtica de Barcelona (FIB)}
+\newcommand{\degree}{Master's Degree in Innovation and Research in Informatics}
+\newcommand{\specialization}{Computer Networks and Distributed Systems}
+
+% ── Greek front matter helpers ──
+% Inside greekpart the default font is CMU (TU encoding) so that headings,
+% captions and running heads, which call \normalfont, can render Greek.
+% The final \clearpage ships every Greek page while the Greek font is active.
+% otherlanguage* (not otherlanguage) keeps babel from writing language switches
+% into the .toc/.lof/.lot files, which would typeset the English lists in TU.
+\newenvironment{greekpart}{%
+  \begin{otherlanguage*}{greek}%
+  \lefthyphenmin=2 \righthyphenmin=2
+  \renewcommand{\figurename}{Σχήμα}%
+  \renewcommand{\tablename}{Πίνακας}%
+  \renewcommand{\encodingdefault}{TU}%
+  \renewcommand{\rmdefault}{cmugr}%
+  \renewcommand{\thefigure}{\arabic{figure}}%
+  \renewcommand{\thetable}{\arabic{table}}%
+  \setcounter{figure}{0}\setcounter{table}{0}%
+  \normalfont
+}{%
+  \clearpage
+  \markboth{}{}%
+  \end{otherlanguage*}%
+}
+
+% Unnumbered chapter that is still listed (clickable) in the English ToC.
+\newcommand{\greekchapter}[1]{%
+  \cleardoublepage\phantomsection
+  \chapter*{#1}%
+  \addcontentsline{toc}{chapter}{\texorpdfstring{{\greekfont #1}}{#1}}%
+  \markboth{#1}{#1}%
+}
+
+% Manually numbered sections, kept out of the ToC and the lists of figures/tables.
+\newcounter{grsection}
+\newcounter{grsubsection}[grsection]
+\newcommand{\grsection}[1]{%
+  \stepcounter{grsection}%
+  \section*{\thegrsection\quad #1}%
+  \markright{\thegrsection\quad #1}%
+}
+\newcommand{\grsubsection}[1]{%
+  \stepcounter{grsubsection}%
+  \subsection*{\thegrsection.\thegrsubsection\quad #1}%
+}
+
+% Empty (unnumbered) blank page so that the next part starts on a right-hand page.
+\newcommand{\cleartorightblank}{%
+  \clearpage
+  \ifodd\value{page}\else\thispagestyle{empty}\null\clearpage\fi
+}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% Bibliography uses sorting=none (order of first citation). Citations in the
+% Greek front matter would renumber every reference, so the order of the
+% English edition (main.tex) is fixed here before any Greek citation.
+\nocite{domenech2024ensuring,enisa2023health,domenech2026robust,chio2018machine,%
+domenech2025evaluating,dadkhah2024ciciomt,neto2023ciciot2023,areia2024iomt,%
+leon2025miotta,hospnet26,miotta_npt_github,unified_iomt_csuc2026,%
+dimitrov2016medical,domenech2025preventive,khraisat2019survey,weber2023attack,%
+ahmad2021network,sarker2021ml,heidari2023iot,lopez2025nprint,zeek,hady2020ids,%
+hussain2021framework,cicflowmeter,holland2021nprint,abouhouran2025federated,%
+noblet2025nxcap,ali2015gudm,khan2024umnids,lones2024avoid,grinsztajn2022tree,%
+mcnemar1947note,sommer2010outside}
+
+% ── Greek NTUA Covers (pages 1–4, no visible numbers) ────────────────
+% Layout matches peer Artemis template:
+%   1 cover (logo) · 2 blank · 3 approval/committee · 4 copyright
+% After the four \clearpage calls, the counter is already at 5 → Περίληψη.
+\pagenumbering{arabic}
+\pagestyle{empty}
+{%
+  \renewcommand{\encodingdefault}{TU}%
+  \renewcommand{\rmdefault}{cmugr}%
+  \normalfont
+  \begin{otherlanguage*}{greek}%
+  \lefthyphenmin=2 \righthyphenmin=2
+  \input{frontmatter/ntua/ntua_covers}%
+  \end{otherlanguage*}%
+}
+\pagestyle{fancy}
+
+% ── Front Matter ──
+%   5  → Περίληψη (first visible number)
+%   7  → Εκτεταμένη Περίληψη
+%   21 → Πλαίσιο Εκπόνησης
+%   23 → Abstract
+
+\begin{greekpart}
+\input{frontmatter/ntua/greek_abstract}
+\end{greekpart}
+\cleartorightblank
+
+\begin{greekpart}
+\input{frontmatter/ntua/greek_extended_abstract}
+\end{greekpart}
+\cleartorightblank
+
+% Σημείωμα / Πλαίσιο Εκπόνησης (page 21; adds clickable ToC entry)
+\begin{greekpart}
+\input{frontmatter/ntua/ntua_note}
+\end{greekpart}
+\cleartorightblank
+
+\input{frontmatter/abstract}
+\cleardoublepage
+
+\tableofcontents
+\cleardoublepage
+
+\listoffigures
+\cleardoublepage
+
+\listoftables
+\cleardoublepage
+
+\input{backmatter/acronym_table}
+\cleardoublepage
+
+% ── Main Matter ──
+
+\input{chapters/ch1_introduction}
+\input{chapters/ch2_state_of_art}
+\input{chapters/ch3_solution_design}
+\input{chapters/ch4_execution}
+\input{chapters/ch5_experimentation}
+\input{chapters/ch6_sustainability}
+\input{chapters/ch7_conclusions}
+
+% ── Back Matter ──
+\printbibliography[heading=bibintoc, title={Bibliography}]
+
+% ── Appendices ──
+% \appendix
+% \input{backmatter/appendix_a}  % Future: supplementary tables, code, etc.
+
+\end{document}
