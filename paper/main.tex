@@ -10,29 +10,31 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{tikz}
-\usetikzlibrary{positioning,arrows.meta,shapes.geometric,fit,backgrounds}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric,fit,backgrounds,calc}
 \usepackage{xcolor}
 \usepackage{microtype}
 \usepackage{setspace}
 \usepackage[hidelinks]{hyperref}
 \renewcommand\UrlFont{\color{blue}\rmfamily}
 \urlstyle{rm}
-\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\floatsep}{7pt plus 2pt minus 2pt}
-\setlength{\intextsep}{7pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{5pt plus 1pt minus 2pt}
+\setlength{\floatsep}{5pt plus 1pt minus 2pt}
+\setlength{\intextsep}{5pt plus 1pt minus 2pt}
+\setlength{\abovecaptionskip}{2pt}
+\setlength{\belowcaptionskip}{0pt}
 
 \graphicspath{{figures/}}
 
 \newcommand{\macroF}{\textsc{Macro-F1}}
 
 \begin{document}
-\setstretch{0.95}
+\setstretch{0.94}
 
 \title{Unifying Heterogeneous IoMT Datasets for Intrusion Detection: From Laboratory Testbeds to Real Hospital Network Evaluation}
 
 \titlerunning{Unifying IoMT Datasets for Intrusion Detection}
 
-\author{Pantelis Petrakis\inst{1}\orcidID{0009-0008-0339-4590} \and Jordi Dom\'{e}nech\inst{1}\orcidID{0000-0002-2977-7265} \and Olga Le\'{o}n\inst{1}\orcidID{0000-0003-2869-051X} \and Isabel V. Martin-Faus\inst{1}\orcidID{0000-0001-9975-8791} \and Josep Pegueroles\inst{1}\orcidID{0000-0002-5194-4883}}
+\author{Pantelis Petrakis\orcidID{0009-0008-0339-4590} \and Jordi Dom\'{e}nech\orcidID{0000-0002-2977-7265} \and Olga Le\'{o}n\orcidID{0000-0003-2869-051X} \and Isabel V. Martin-Faus\orcidID{0000-0001-9975-8791} \and Josep Pegueroles\orcidID{0000-0002-5194-4883}}
 
 \authorrunning{P. Petrakis et al.}
 
@@ -53,7 +55,7 @@ The growing adoption of Internet of Medical Things (IoMT) devices in healthcare 
 
 The rapid proliferation of connected medical devices, wearable sensors, and clinical infrastructure has established the Internet of Medical Things (IoMT) as a foundation of modern healthcare delivery~\cite{dimitrov2016medical}. However, this broad connectivity introduces a significantly enlarged attack surface, exposing life-critical devices to severe cyber threats. Unlike traditional IT systems, compromised IoMT devices---such as smart infusion pumps, vital sign monitors, or surgical robots---can directly endanger patient safety~\cite{domenech2024ensuring}. The European Union Agency for Cybersecurity reports a sharp rise in cyberattacks targeting the health sector between 2021 and 2023, with ransomware, data exfiltration and denial-of-service among the most prevalent threat categories~\cite{enisa2023health}. Effective Intrusion Detection Systems (IDS) tailored to the operational constraints of IoMT environments are therefore an urgent need~\cite{domenech2024ensuring}.
 
-Machine-learning-based IDS have emerged as a promising solution that can identify both known and novel attacks by learning behavioural patterns from network traffic~\cite{ahmad2021network}. Their effectiveness, however, depends heavily on the quality, diversity and representativeness of their training data~\cite{khraisat2019survey}. A critical limitation of current IoMT security research is the reliance on isolated, single-domain datasets that capture only a narrow slice of the attack landscape. Models trained on these independent datasets tend to overfit to specific network topologies and traffic distributions, failing to generalize when deployed in different environments~\cite{domenech2025evaluating,heidari2023iot}.
+Machine-learning-based IDS have emerged as a promising solution that can identify both known and novel attacks by learning behavioural patterns from network traffic~\cite{ahmad2021network}. Their effectiveness, however, depends heavily on the quality, diversity and representativeness of their training data~\cite{khraisat2019survey,Domenech2026}. A critical limitation of current IoMT security research is the reliance on isolated, single-domain datasets that capture only a narrow slice of the attack landscape. Models trained on these independent datasets tend to overfit to specific network topologies and traffic distributions, failing to generalize when deployed in different environments~\cite{domenech2025evaluating,heidari2023iot}.
 
 This dataset isolation problem is compounded by the structural challenge of \emph{feature heterogeneity}. Existing benchmark datasets employ structurally incompatible feature extraction methodologies. CICIoMT2024~\cite{dadkhah2024ciciomt} produces flow-based features extracted with the CICFlowMeter framework~\cite{cicflowmeter}, while IoMT-TrafficData~\cite{areia2024iomt} relies on Zeek-derived per-connection records~\cite{zeek}. Because these tools yield semantically and structurally different feature spaces, direct dataset integration or cross-domain learning is inherently impossible without returning to the raw packet captures (PCAPs).
 
@@ -66,7 +68,7 @@ This paper addresses both barriers by systematically unifying heterogeneous IoMT
 
   \item \textbf{Quantification of single-source collapse versus unified generalizability.} We evaluate Decision Tree, Random Forest and XGBoost classifiers under three regimes (CIC-only, IoMT-only, Unified). Single-source models fail under cross-domain transfer (opposite-source \macroF{} drops to $0.0523$--$0.3423$, depending on regime/model), whereas unified models achieve \macroF{} $\geq 0.926$ on both source-specific test slices simultaneously, with the best model reaching $0.952$ on the full mixed test set. We complement these results with paired McNemar's tests to confirm statistical and practical significance.
 
-  \item \textbf{First real-world evaluation on \textsc{HospNet26}.} We deploy the unified models on \textsc{HospNet26}~\cite{hospnet26}, a recently released dataset of $1.26 \times 10^{6}$ unlabelled traffic windows from a live German hospital network. The evaluation reveals a significant covariate shift: only $3.7\%\!-\!10.0\%$ of clinical traffic is classified as benign, with most predictions concentrated in DoS-like classes. To the best of our knowledge, this is the first quantitative measurement of the laboratory-to-clinic gap for IoMT IDS. We complement this finding with concrete recalibration strategies (few-shot benign fine-tuning and post-hoc threshold calibration) that provide actionable guidance for closing the gap.
+  \item \textbf{First real-world evaluation on \textsc{HospNet26}.} We deploy the unified models on \textsc{HospNet26}~\cite{hospnet26,Domenech2026_cbms}, a recently released dataset of $1.26 \times 10^{6}$ unlabelled traffic windows from a live German hospital network. The evaluation reveals a significant covariate shift: only $3.7\%\!-\!10.0\%$ of clinical traffic is classified as benign, with most predictions concentrated in DoS-like classes. To the best of our knowledge, this is the first quantitative measurement of the laboratory-to-clinic gap for IoMT IDS. We complement this finding with concrete recalibration strategies (few-shot benign fine-tuning and post-hoc threshold calibration) that provide actionable guidance for closing the gap.
 \end{enumerate}
 
 The remainder of the paper is organised as follows. Section~\ref{sec:background} reviews related work on IoMT security, ML-based IDS and dataset integration. Section~\ref{sec:methodology} details the proposed unification methodology. Section~\ref{sec:setup} presents the experimental setup. Section~\ref{sec:results_1} reports the cross-domain evaluation on the public datasets. Section~\ref{sec:results_2} presents the real-world evaluation on \textsc{HospNet26}. Section~\ref{sec:discussion} discusses implications and recalibration strategies. Section~\ref{sec:conclusion} concludes the paper.
@@ -84,7 +86,7 @@ Machine-learning-based IDS---in particular tree ensembles, deep learning models 
 
 The community has produced several benchmark datasets, but each captures only a subset of the threat landscape and uses incompatible feature representations. \textbf{CICIoMT2024}~\cite{dadkhah2024ciciomt} is a multi-protocol IoMT dataset with $18$ attack types extracted via the CICFlowMeter framework and supplied as flow-based CSV records. \textbf{IoMT-TrafficData}~\cite{areia2024iomt} provides hospital-oriented testbed traffic with Zeek-derived per-connection statistics. \textbf{CICIoT2023}~\cite{neto2023ciciot2023} is a large-scale general-purpose IoT dataset, while several other datasets exist for general IoT (e.g.\ Bot-IoT, TON-IoT, IoT-23). All were developed independently, with different network topologies, device populations, and---crucially---different feature extraction tools. Direct concatenation across datasets is therefore not possible.
 
-More recently, an additional line of research has shifted from laboratory traces to \emph{real} clinical network traffic. \textbf{HospNet26}~\cite{hospnet26} provides anonymized statistical features from one week of real internal traffic from a Helios hospital in Germany. It is supplied in three feature granularities (flow, window, combined) and contains no attack labels: it is a pure benign-traffic reference for evaluating specificity in operational environments. To date, no published work has used \textsc{HospNet26} to evaluate the deployment behaviour of cross-dataset-trained IDS models.
+More recently, an additional line of research has shifted from laboratory traces to \emph{real} clinical network traffic. \textbf{HospNet26}~\cite{hospnet26,Domenech2026_cbms} provides anonymized statistical features from one week of real internal traffic from a Helios hospital in Germany. It is supplied in three feature granularities (flow, window, combined) and contains no attack labels: it is a pure benign-traffic reference for evaluating specificity in operational environments. To date, no published work has used \textsc{HospNet26} to evaluate the deployment behaviour of cross-dataset-trained IDS models.
 
 \subsection{Dataset Unification Approaches}
 
@@ -101,38 +103,43 @@ Three gaps motivate this work. First, no prior study has \emph{integrated} CICIo
 
 \subsection{Pipeline Overview}
 
-The proposed pipeline applies five stages to each source dataset (Fig.~\ref{fig:pipeline}): (i) PCAP collection; (ii) feature extraction via MIOTTA-NPT; (iii) three-level label harmonization; (iv) quality assurance; (v) cross-source merging with provenance attribution and stratified splitting, yielding a single ML-ready Parquet/CSV dataset for training and cross-domain evaluation.
+The proposed pipeline applies five stages to each source dataset (Fig.~\ref{fig:pipeline}): (i) PCAP collection; (ii) feature extraction via MIOTTA-NPT; (iii) three-level label harmonization; (iv) quality assurance; (v) cross-source merging with provenance attribution and stratified splitting, yielding a single ML-ready Parquet/CSV dataset for training and cross-domain evaluation. The unified dataset can be found in \cite{pantelis2026_unified_dataset}.
 
 Across both sources, CICIoMT2024 provides $18$ attack sub-types (DDoS, DoS, MQTT, Spoofing, Reconnaissance variants) and IoMT-TrafficData adds $8$ further sub-types (DoS, MQTT, Reconnaissance, Spoofing; no DDoS), yielding $26$ fine-grained labels in total---all mapped to six shared categorical classes by stage~(iii).
 
 \begin{figure}[H]
+\vspace*{-1.5mm}
 \centering
+\scalebox{0.84}{%
 \begin{tikzpicture}[
-  node distance=5mm and 6mm,
-  srcnode/.style={rectangle, draw, rounded corners, minimum width=30mm, minimum height=6.5mm, align=center, fill=gray!10, font=\small},
-  stage/.style={rectangle, draw, rounded corners, minimum width=98mm, minimum height=7mm, align=left, fill=blue!10, font=\small, inner sep=1.8mm},
-  outnode/.style={rectangle, draw, rounded corners, minimum width=98mm, minimum height=7mm, align=left, fill=green!10, font=\small, inner sep=1.8mm},
-  arr/.style={-{Latex[length=2.5mm]}, thick}
+  node distance=2.5mm and 10mm,
+  srcnode/.style={rectangle, draw, rounded corners, minimum width=34mm, minimum height=7mm, text width=32mm, align=center, fill=gray!10, font=\footnotesize, inner sep=1.2mm},
+  stage/.style={rectangle, draw, rounded corners, minimum width=92mm, minimum height=6.5mm, align=left, fill=blue!10, font=\footnotesize, inner sep=1.6mm},
+  outnode/.style={rectangle, draw, rounded corners, minimum width=92mm, minimum height=6.5mm, align=left, fill=green!10, font=\footnotesize, inner sep=1.6mm},
+  arr/.style={-{Latex[length=2.2mm]}, thick}
 ]
-\node (cic) [srcnode] {CICIoMT2024 (raw PCAPs)};
-\node (iomt) [srcnode, right=of cic] {IoMT-TrafficData (raw PCAPs)};
+\node (cic) [srcnode] {CICIoMT2024\\(raw PCAPs)};
+\node (iomt) [srcnode, right=of cic] {IoMT-TrafficData\\(raw PCAPs)};
 
-\node (s1) [stage, below=10mm of cic, xshift=37mm] {(i) PCAP collection from each original source};
+\coordinate (srcjoin) at ($(cic.south)!0.5!(iomt.south)$);
+\node (s1) [stage, below=8mm of srcjoin] {(i) PCAP collection from each original source};
 \node (s2) [stage, below=of s1] {(ii) MIOTTA-NPT standardized extraction ($W=100$ packets)};
 \node (s3) [stage, below=of s2] {(iii) Three-level label harmonization (2/6/26 classes)};
 \node (s4) [stage, below=of s3] {(iv) Quality checks + common scaling (58 aligned features)};
 \node (s5) [stage, below=of s4] {(v) Provenance-aware merge + stratified 70/15/15 split};
 \node (final) [outnode, below=of s5] {Unified ML-ready dataset ($8.0\times10^{6}$ rows)};
 
-\draw [arr] (cic.south) -- ++(0,-3mm) -- (s1.north west);
-\draw [arr] (iomt.south) -- ++(0,-3mm) -- (s1.north east);
-\draw [arr] (s1) -- (s2);
-\draw [arr] (s2) -- (s3);
-\draw [arr] (s3) -- (s4);
-\draw [arr] (s4) -- (s5);
-\draw [arr] (s5) -- (final);
-\end{tikzpicture}
-\caption{Five-stage unification pipeline. Heterogeneous IoMT PCAPs from two sources are reduced to a common $58$-feature space by MIOTTA-NPT, harmonized at three label granularities, quality-checked and stratified-split, yielding a single ML-ready dataset with full source provenance.}
+\draw [arr] (cic.south) -- (cic.south |- s1.north);
+\draw [arr] (iomt.south) -- (iomt.south |- s1.north);
+\draw [arr] (s1.south) -- (s2.north);
+\draw [arr] (s2.south) -- (s3.north);
+\draw [arr] (s3.south) -- (s4.north);
+\draw [arr] (s4.south) -- (s5.north);
+\draw [arr] (s5.south) -- (final.north);
+\end{tikzpicture}%
+}
+\vspace{3pt}
+{\setlength{\abovecaptionskip}{7pt}\caption{Five-stage unification pipeline. Heterogeneous IoMT PCAPs from two sources are reduced to a common $58$-feature space by MIOTTA-NPT, harmonized at three label granularities, quality-checked and stratified-split, yielding a single ML-ready dataset with full source provenance.}}
 \label{fig:pipeline}
 \end{figure}
 
@@ -167,7 +174,7 @@ Each record retains a \texttt{source\_dataset} field, enabling the construction 
 
 \subsection{Unified Dataset Profile}
 
-The integration produces a unified dataset of $8{,}011{,}534$ records across $58$ numeric features. CICIoMT2024 contributes $97.70\%$ of records, IoMT-TrafficData $2.30\%$. The categorical class distribution is shown in Table~\ref{tab:class-balance}: the dataset is heavily attack-dominated ($99.33\%$ attacks vs.\ $0.67\%$ benign), with a $\sim$$575{:}1$ maximum-to-minimum class ratio between DDoS and Spoofing. Train/validation/test partitions contain $5{,}608{,}073$, $1{,}201{,}730$ and $1{,}201{,}731$ records respectively (exactly $70/15/15$).
+The integration produces a unified dataset of $8{,}011{,}534$ records across $58$ numeric features \cite{pantelis2026_unified_dataset}. CICIoMT2024 contributes $97.70\%$ of records, IoMT-TrafficData $2.30\%$. The categorical class distribution is shown in Table~\ref{tab:class-balance}: the dataset is heavily attack-dominated ($99.33\%$ attacks vs.\ $0.67\%$ benign), with a $\sim$$575{:}1$ maximum-to-minimum class ratio between DDoS and Spoofing. Train/validation/test partitions contain $5{,}608{,}073$, $1{,}201{,}730$ and $1{,}201{,}731$ records respectively (exactly $70/15/15$).
 
 \begin{table}[H]
 \centering
@@ -195,9 +202,9 @@ Spoofing       & \phantom{0,000}1{,}782 & \phantom{0,}7{,}563 & \phantom{0,00}9{
 
 To isolate the effect of integration, three regimes are defined:
 \begin{itemize}[nosep,leftmargin=*]
-  \item \textbf{B1 (CIC-only):} only rows with \texttt{source\_dataset = CICIoMT2024}.
-  \item \textbf{B2 (IoMT-only):} only rows with \texttt{source\_dataset = IoMT-TrafficData}.
-  \item \textbf{U (Unified):} the complete training set (both sources).
+  \item \textbf{B1 (CIC-only):} only rows with \texttt{source\_dataset = CICIoMT2024} \cite{dadkhah2024ciciomt}.
+  \item \textbf{B2 (IoMT-only):} only rows with \texttt{source\_dataset = IoMT-TrafficData} \cite{areia2024iomt}.
+  \item \textbf{U (Unified):} the complete training set (both sources) \cite{pantelis2026_unified_dataset}.
 \end{itemize}
 Filtering is applied to the existing stratified splits, preserving non-overlapping partition boundaries. All regimes share the same hyperparameter search space, the same iteration budget and the same evaluation protocol.
 
@@ -303,7 +310,7 @@ XGBoost       & 0.9382 & $0.9999^{*}$ & \textbf{0.9522} \\
 \bottomrule
 \end{tabular}
 
-\vspace{0.25em}
+\vspace{0.1em}
 \raggedright\footnotesize
 $^{*}$\,No DDoS in IoMT slice; naive six-class \macroF{} there is $\approx 0.832$. We report five-class \macroF{} for a faithful per-class view; full-test remains the global metric.
 \end{table}
@@ -314,13 +321,13 @@ Fig.~\ref{fig:cm-unified} shows the normalized confusion matrix of the tuned XGB
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.80\textwidth]{cm_unified_xgb.png}
+\includegraphics[width=0.81\textwidth]{cm_unified_xgb.png}
 \caption{Normalized confusion matrix of the tuned XGBoost-U on the full mixed test set ($N=1{,}201{,}731$). Off-diagonal mass concentrates almost entirely on the DDoS$\leftrightarrow$DoS pair.}\label{fig:cm-unified}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.98\textwidth]{per_class_f1.png}
+\includegraphics[width=0.90\textwidth]{per_class_f1.png}
 \caption{Per-class F1 of the three tuned XGBoost regimes (B1, B2, U) on the full mixed test set. Single-source training (B1, B2) collapses on the off-source classes; the unified-trained model (U) recovers all six classes.}\label{fig:perclass}
 \end{figure}
 
@@ -332,11 +339,11 @@ Fig.~\ref{fig:xd-cm} shows the cross-domain confusion matrices for the tuned XGB
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}[b]{0.48\textwidth}
+\begin{subfigure}[b]{0.50\textwidth}
   \includegraphics[width=\textwidth]{cm_b1_xd_iomt.png}
   \caption{XGBoost-B1 $\to$ IoMT test.}\label{fig:xd-b1}
 \end{subfigure}\hfill
-\begin{subfigure}[b]{0.48\textwidth}
+\begin{subfigure}[b]{0.50\textwidth}
   \includegraphics[width=\textwidth]{cm_b2_xd_cic.png}
   \caption{XGBoost-B2 $\to$ CIC test.}\label{fig:xd-b2}
 \end{subfigure}
@@ -372,17 +379,17 @@ XGBoost is statistically and practically better than both DT and RF (RER $\appro
 
 \subsection{Dataset and Protocol}
 
-\textsc{HospNet26}~\cite{hospnet26} is a publicly available reference dataset of anonymized network traffic features captured from the internal network of a Helios hospital (Germany) over one week of real clinical operation in August 2025. Unlike a laboratory IoMT testbed, it reflects the full hospital network---general IT, administrative, imaging, and IoT devices of all types, not exclusively IoMT. The four \emph{combined-feature} Parquet files (Friday, Weekend, Monday, Monday-to-Friday) provide $72$-column window-based + flow-level statistics per record. We extract the $58$ MIOTTA window-based features (a strict subset of the $72$ available columns) and concatenate the four files into a single evaluation set of $1{,}265{,}240$ windows. The remaining $14$ flow-level columns are discarded.
+\textsc{HospNet26}~\cite{hospnet26,Domenech2026_cbms} is a publicly available reference dataset of anonymized network traffic features captured from the internal network of a Helios hospital (Germany) over one week of real clinical operation in August 2025. Unlike a laboratory IoMT testbed, it reflects the full hospital network---general IT, administrative, imaging, and IoT devices of all types, not exclusively IoMT. According to~\cite{Domenech2026_cbms}, the underlying captures contain raw traffic from $126$ distinct medical devices (e.g., imaging systems, blood analyzers, and sterilizers) across multiple manufacturers; device-level labels are unavailable in the released feature files, so medical-vs-IT proportions cannot be computed here. The four \emph{combined-feature} Parquet files (Friday, Weekend, Monday, Monday-to-Friday) provide $72$-column window-based + flow-level statistics per record. We extract the $58$ MIOTTA window-based features (a strict subset of the $72$ available columns) and concatenate the four files into a single evaluation set of $1{,}265{,}240$ windows. The remaining $14$ flow-level columns are discarded.
 
-The dataset is \textbf{documented as containing only legitimate hospital traffic}: it was captured from a production clinical network during normal operation and released as a benign-traffic reference for IDS evaluation~\cite{hospnet26}. Every window in our processed set therefore has a known ground-truth class, namely \texttt{Benign}, and any non-Benign prediction by our models constitutes a false positive. To preserve a strict no-leakage protocol, we apply the \emph{same} \texttt{StandardScaler} fitted on the unified \emph{training} split (Section~\ref{sec:methodology}); no refitting on \textsc{HospNet26} is performed. The three tuned Unified models (DT-U, RF-U, XGB-U) are then run for inference without any retraining or adaptation.
+The dataset is \textbf{documented as containing only legitimate hospital traffic}: it was captured from a production clinical network during normal operation and released as a benign-traffic reference for IDS evaluation~\cite{hospnet26,Domenech2026_cbms}. Every window in our processed set has a known ground-truth class, namely \texttt{Benign}, and any non-Benign prediction by our models constitutes a false positive. To preserve a strict no-leakage protocol, we apply the \emph{same} \texttt{StandardScaler} fitted on the unified \emph{training} split (Section~\ref{sec:methodology}); no refitting on \textsc{HospNet26} is performed. The three tuned Unified models (DT-U, RF-U, XGB-U) are then run for inference without any retraining or adaptation.
 
 \subsection{Evaluation Metric: Benign Prediction Rate}
 
-Because all $1{,}265{,}240$ \textsc{HospNet26} windows share the same ground-truth class (\texttt{Benign}), the standard \macroF{}-over-six-classes is undefined. The appropriate metric is therefore the \textbf{Benign prediction rate} $r_{B}$, defined as the fraction of windows that the model classifies as \texttt{Benign}. In the present setting $r_{B}$ is exactly the model's specificity (true-negative rate) on real clinical traffic; equivalently, $1\!-\!r_{B}$ is the false-positive rate, with the additional information of which attack class each false positive is mis-attributed to. A high $r_{B}$ indicates that the model correctly recognises live hospital traffic as legitimate; a low $r_{B}$ signals a distributional mismatch between the training-set Benign region and the operational environment.
+Because all $1{,}265{,}240$ \textsc{HospNet26} windows share the same ground-truth class (\texttt{Benign}), the standard \macroF{}-over-six-classes is undefined. The appropriate metric is therefore the \textbf{Benign prediction rate} $r_{B}$, defined as the fraction of windows that the model classifies as \texttt{Benign}. In the present setting, $r_{B}$ is exactly the model's specificity (true-negative rate) on real clinical traffic; equivalently, $1\!-\!r_{B}$ is the false-positive rate, with the additional information of which attack class each false positive is mis-attributed to. A high $r_{B}$ indicates that the model correctly recognises live hospital traffic as legitimate; a low $r_{B}$ signals a distributional mismatch between the training-set Benign region and the operational environment.
 
 \subsection{Results: A Substantial Laboratory-to-Clinic Gap}
 
-Table~\ref{tab:hospnet} reports the predicted-class distribution for the three tuned Unified models on the $1.26 \times 10^{6}$ HospNet26 windows. The Benign prediction rate is $6.07\%$ for DT, $3.72\%$ for RF and $9.96\%$ for XGBoost. The remaining $90\%\!-\!96\%$ of windows are classified as some form of attack, with $\sim$$51\%\!-\!72\%$ of all windows attributed to DoS.
+Table~\ref{tab:hospnet} reports the predicted-class distribution for the three tuned Unified models on the $1.26 \times 10^{6}$ HospNet26 windows. The Benign prediction rate is $6.07\%$ for DT, $3.72\%$ for RF, and $9.96\%$ for XGBoost. The remaining $90\%\!-\!96\%$ of windows are classified as some form of attack, with $\sim$$51\%\!-\!72\%$ of all windows attributed to DoS.
 
 \begin{table}[H]
 \centering
@@ -421,13 +428,11 @@ XGBoost       & 5.20\%  & 9.86\%  & \textbf{9.96\%} & $+0.10$ pp \\
 \end{tabular}
 \end{table}
 
-The pattern differs sharply from the laboratory test set, where regime U dominated both single-source baselines by $+20$ pp or more (Tables~\ref{tab:cross-domain}--\ref{tab:unified}). On real hospital traffic no regime systematically outperforms the others: all Benign rates fall within the same $0\%$--$10\%$ band regardless of training data composition, and the regime differences ($\leq 3$ pp) are negligible relative to the overall false-alarm burden ($90\%$--$96\%$). The laboratory-to-clinic gap is therefore not resolved by varying the laboratory training composition; it persists across all three regimes. This is consistent with the covariate-shift interpretation: all laboratory Benign samples---whether from CICIoMT2024, IoMT-TrafficData, or both---share the same fundamental mismatch with live clinical traffic, so no combination of these sources can move the Benign decision region toward the operational distribution. The result therefore strengthens the case for the recalibration strategies of Section~\ref{sec:discussion}.
+The pattern differs sharply from the laboratory test set, where regime U dominated both single-source baselines by $+20$ pp or more (Tables~\ref{tab:cross-domain}--\ref{tab:unified}). On real hospital traffic no regime systematically outperforms the others: all Benign rates fall within the same $0\%$--$10\%$ band regardless of training data composition, and the regime differences ($\leq 3$ pp) are negligible relative to the overall false-alarm burden ($90\%$--$96\%$). The laboratory-to-clinic gap is therefore not resolved by varying the laboratory training composition; it persists across all three regimes. This is consistent with the covariate-shift interpretation: all laboratory Benign samples---whether from CICIoMT2024, IoMT-TrafficData, or both---share the same fundamental mismatch with live clinical traffic, so no combination of these sources can move the Benign decision region toward the operational distribution. The result strengthens the case for the recalibration strategies of Section~\ref{sec:discussion}.
 
 \subsection{Interpretation: Covariate Shift, Not Model Failure}
 
-These results should not be read as a model failure. The same models achieve \macroF{} $\geq 0.948$ on the laboratory test set with virtually no benign misclassification. The sharp drop in specificity on \textsc{HospNet26} is an instance of \emph{covariate shift}~\cite{sommer2010outside}: the conditional distribution $p(x \mid y = \mathrm{Benign})$ in the training data differs systematically from the corresponding distribution in the deployment environment, while the per-class decision rules learned during training remain unchanged.
-
-Three concrete factors explain the gap:
+These results should not be read as a model failure. The same models achieve \macroF{} $\geq 0.948$ on the laboratory test set with virtually no benign misclassification. The sharp drop in specificity on \textsc{HospNet26} is an instance of \emph{covariate shift}~\cite{sommer2010outside}: the conditional distribution $p(x \mid y = \mathrm{Benign})$ in the training data differs systematically from the corresponding distribution in the deployment environment, while the per-class decision rules learned during training remain unchanged. Three concrete factors explain the gap:
 \begin{enumerate}[nosep,leftmargin=*]
   \item \textbf{Laboratory benign traffic is not representative.} The Benign class in CICIoMT2024 and IoMT-TrafficData was generated in controlled testbed conditions (small device populations, synthetic baseline activity). Real hospital networks carry medical imaging streams (DICOM/PACS), electronic health record systems (HL7, FHIR), proprietary clinical device protocols, and large administrative back-office traffic, all with much higher volumes and different temporal patterns.
   \item \textbf{High-throughput clinical traffic resembles DoS.} Continuous PACS image streaming and bulk EMR synchronization produce burst-like packet statistics with high values of flow-rate and window-size features---the very features that the models have learned to associate with volumetric DoS attacks. This explains why DoS is the dominant false-positive class for all three models.
@@ -449,30 +454,30 @@ The HospNet26 finding suggests two concrete, low-cost recalibration strategies t
 
 \subsection{Threats to Validity}
 
-Three threats to validity remain: (i) we evaluate \emph{tree-based models only}; deep architectures on per-packet representations~\cite{holland2021nprint} may interact differently with covariate shift; (ii) the integration uses \emph{two} sources, so adding a third (e.g.\ CICIoT2023~\cite{neto2023ciciot2023}) may expose attack-class coverage gaps not visible here; (iii) the recalibration strategies are described but not yet empirically validated.
+Four threats to validity remain: (i) we evaluate \emph{tree-based models only}; packet-level deep models~\cite{holland2021nprint} may interact differently with covariate shift and are prioritized in future work; (ii) all experiments use a fixed MIOTTA-NPT window size ($W{=}100$) and a fixed $58$-feature window representation, so sensitivity to alternative window sizes, feature-group ablations, and per-packet binary mode remains unexplored; (iii) the integration uses \emph{two} sources, so adding a third (e.g.\ CICIoT2023~\cite{neto2023ciciot2023}) may expose attack-class coverage gaps not visible here; (iv) the recalibration strategies are described but not yet empirically validated.
 
 \section{Conclusion and Future Work}
 \label{sec:conclusion}
 
-This paper addressed two interconnected limitations of current ML-based IDS for IoMT environments: dataset isolation with feature heterogeneity, and the absence of evaluation against real clinical traffic. We proposed a PCAP-level integration methodology built on the MIOTTA-NPT preprocessing tool, a three-level label harmonization scheme, source-attribution metadata, and stratified cross-domain splitting. The resulting unified dataset of $8 \times 10^{6}$ records enables three tree-based classifiers to reach \macroF{} up to $0.952$ on the full mixed test set and $\geq 0.926$ on each constituent source slice, dramatically outperforming all single-source baselines (factor $\sim 50\times$ vs.\ model complexity). Beyond laboratory results, we presented the first evaluation of an IoMT IDS on \textsc{HospNet26} and showed that Benign rates on $1.26\!\times\!10^{6}$ live clinical windows ($3.7\%\!-\!10.0\%$) reveal a substantial laboratory-to-clinic covariate shift, motivating few-shot Benign fine-tuning and post-hoc threshold calibration as practical strategies for closing the gap.
+This paper addressed two interconnected limitations of current ML-based IDS for IoMT environments: dataset isolation with feature heterogeneity, and the absence of evaluation against real clinical traffic. We proposed a PCAP-level integration methodology built on the MIOTTA-NPT preprocessing tool, a three-level label harmonization scheme, source-attribution metadata, and stratified cross-domain splitting. The resulting unified dataset of $8 \times 10^{6}$ records enables three tree-based classifiers to reach \macroF{} up to $0.952$ on the full mixed test set and $\geq 0.926$ on each constituent source slice, dramatically outperforming all single-source baselines (factor $\sim 50\times$ vs.\ model complexity). Beyond laboratory results, we presented the first evaluation of an IoMT IDS on \textsc{HospNet26} and showed that Benign rates on $1.26\!\times\!10^{6}$ live clinical windows ($3.7\%\!-\!10.0\%$) reveal a substantial laboratory-to-clinic covariate shift, motivating few-shot Benign fine-tuning and post-hoc threshold calibration as practical strategies for closing the gap. 
 
-\paragraph{Future Work.}
-Five directions follow naturally:
+Future work could focus on five natural directions:
 (i)~empirical validation of the recalibration strategies, quantifying how many supervised benign hospital windows are needed to reach $r_{B} \geq 0.90$;
 (ii)~extension to a third source (e.g.\ CICIoT2023~\cite{neto2023ciciot2023}) via the same MIOTTA-NPT pipeline;
-(iii)~sequence and packet-level deep architectures on raw or per-packet representations~\cite{holland2021nprint};
+(iii)~packet-level deep architectures~\cite{holland2021nprint} and sensitivity analysis over window size (e.g.\ $W \in \{50,100,200\}$), feature-group ablation, and MIOTTA-NPT per-packet binary mode;
 (iv)~feature engineering targeted at the DDoS--DoS boundary (e.g.\ source-address diversity, flow-volume asymmetry);
 (v)~an operational deployment study tracking concept drift and alert fatigue with recalibrated models.
 
 \subsubsection*{Acknowledgments.}
-This work was carried out at the Information Security Group / Mathematics Applied to Cryptography (ISG-MAK), Universitat Polit\`{e}cnica de Catalunya (UPC). Partial support is acknowledged from the INCIBE CARISMATICA Chair of Cybersecurity and Generalitat de Catalunya grant 2024 FI-1 00643.
+This work was supported by the AGAUR-FI Joan Oró program (2024 FI-1 00643) and the CARISMATICA Chair of Cybersecurity. The funding is provided by the Secretariat of Universities and Research (Generalitat of Catalonia), with additional support from the EU and INCIBE.
 
 \subsubsection*{Disclosure of Interests.}
 The authors declare no competing interests relevant to the content of this article.
 
 {\small
+\vspace{-2mm}
 \let\oldthebibliography\thebibliography
-\renewcommand{\thebibliography}[1]{\oldthebibliography{#1}\setlength{\itemsep}{0pt plus 0.2ex}\setlength{\parskip}{0pt}}
+\renewcommand{\thebibliography}[1]{\oldthebibliography{#1}\setlength{\itemsep}{-0.5pt plus 0.1ex}\setlength{\parskip}{0pt}}
 \bibliographystyle{splncs04}
 \bibliography{references}
 }
