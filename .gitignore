@@ -51,10 +51,55 @@ results/
 TFM_helpful_reference_for_Pantelis_template.pdf
 
 # ===========================================================
+#  Local-only working material – kept on disk, deliberately
+#  not part of the public repository
+# ===========================================================
+# Third-party paper PDFs (publisher copyright) and scratch bib
+references/
+# Supervisors' thesis-offer slides and rendered README artifacts
+docs/thesis_offer_pantelis.pdf
+docs/_artifacts_readme_pdf/
+/thesis_offer_pantelis.pdf
+# Slide decks, speaker scripts and their generators
+presentation/
+presentations/
+/generate_presentation.py
+/presentation_speaker_notes.py
+scripts/create_presentation.py
+scripts/verify_slide13_metrics.py
+paper/figures/paper_first_page*.png
+# Superseded copies (current versions: paper/main.pdf, report/main.pdf)
+/ARES_2026_paper_413.pdf
+/report.pdf
+# Notebook backups
+notebooks/*_backup_*.ipynb
+# CV and job-application material (contains contact details)
+cv/
+
+# ===========================================================
 #  Redundant archives – content already present unzipped
 # ===========================================================
 report.zip
 sechealth-paper-overleaf.zip
+
+# ===========================================================
+#  LaTeX build artifacts (report/)
+# ===========================================================
+report/*.aux
+report/*.bbl
+report/*.blg
+report/*.lof
+report/*.lot
+report/*.out
+report/*.toc
+report/*.run.xml
+report/*-blx.bib
+report/*.fls
+report/*.fdb_latexmk
+report/*.synctex.gz
+report/*.xdv
+# Intermediate compile output; submission PDF lives in report/ntua/
+report/main_ntua.pdf
 
 # ===========================================================
 #  IDE / editors
