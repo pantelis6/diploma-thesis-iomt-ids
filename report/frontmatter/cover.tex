@@ -1,66 +1,81 @@
 % ── Cover Page ──
-% Replicating the official UPC FIB Master's Thesis cover sticker format
+% Official UPC FIB Master's Thesis cover sticker format
 \begin{titlepage}
 \sffamily
+\newgeometry{left=2.75cm, right=2.75cm, top=2.5cm, bottom=2.5cm}
 
-% ── Logos: UPC flush top-left, FIB flush top-right ──
+% ── Logos ──
 \vspace*{-2cm}\hspace*{-1cm}%
 \noindent
 \begin{minipage}[t]{0.55\textwidth}
-\vspace{0pt}
-\raggedright
-\includegraphics[width=\textwidth]{upc_logo.png}
+  \vspace{0pt}\raggedright
+  \includegraphics[width=\textwidth]{upc_logo.png}
 \end{minipage}%
 \hfill
 \begin{minipage}[t]{0.3\textwidth}
-\vspace{0pt}
-\raggedleft
-\includegraphics[height=1.5cm]{fib_logo.png}
+  \vspace{0pt}\raggedleft
+  \includegraphics[height=1.5cm]{fib_logo.png}
 \end{minipage}\hspace*{-0.5cm}
 
-\vspace{1.5cm}
+\vspace{1.8cm}
 
-% ── Title (uppercase, very large, bold) ──
-\begin{center}
-{\fontsize{22}{27}\selectfont\bfseries
-AI BASED INTRUSION DETECTION\\
-FOR IOMT ENVIRONMENTS}
+% ── Title (upper third, equal left/right inset) ──
+\newlength{\covertitleside}
+\setlength{\covertitleside}{1.1cm}
+\noindent\hspace*{\covertitleside}%
+\resizebox{\dimexpr\textwidth-2\covertitleside\relax}{!}{%
+  {\fontfamily{phv}\bfseries\fontsize{22}{28}\selectfont
+  \begin{tabular}{@{}c@{}}
+  AI BASED INTRUSION DETECTION FOR IOMT \\
+  ENVIRONMENTS
+  \end{tabular}}%
+}%
+\hspace*{\covertitleside}\par
 
 \vfill
 
-% ── Author (uppercase, bold) ──
-{\large\bfseries PANTELIS PETRAKIS}
+% ── Author (vertical centre) ──
+\begin{center}
+{\fontfamily{phv}\bfseries\fontsize{17}{21}\selectfont PANTELIS PETRAKIS}
+\end{center}
 
-\vspace{3cm}
+\vfill
 
-% ── Thesis supervisor ──
-{\normalsize\bfseries Thesis supervisor}\\[0.2cm]
-{\normalsize REN\'{E} SERRAL GRACI\`{A} (Department of Computer Architecture)}
+% ── Bottom information block ──
+\begin{center}
+{\fontfamily{phv}\bfseries\fontsize{12}{14.4}\selectfont Thesis supervisor}\\[0.15cm]
+{\fontfamily{phv}\selectfont\fontsize{12}{14.4}\selectfont REN\'{E} SERRAL GRACI\`{A} (Department of Computer Architecture)}
 
-\vspace{0.5cm}
+\vspace{0.45cm}
 
-% ── Advisors ──
-{\normalsize\bfseries Advisors}\\[0.2cm]
-{\normalsize JOSEP PEGUEROLES \& JORDI DOM\'{E}NECH (Department of Network Engineering)}
+{\fontfamily{phv}\bfseries\fontsize{12}{14.4}\selectfont Thesis co-supervisor}\\[0.15cm]
+{\fontfamily{phv}\selectfont\fontsize{12}{14.4}\selectfont JOSEP PEGUEROLES VALLES (Department of Network Engineering)}
 
-\vspace{0.5cm}
+\vspace{0.45cm}
 
-% ── Degree ──
-{\normalsize\bfseries Degree}\\[0.2cm]
-{\normalsize Master's Degree in Innovation and Research in Informatics (Computer Networks and Distributed Systems)}
+{\fontfamily{phv}\bfseries\fontsize{12}{14.4}\selectfont Degree}\\[0.15cm]
+{\fontfamily{phv}\selectfont\fontsize{12}{14.4}\selectfont
+Master's Degree in Innovation and Research in Informatics\\[0.05cm]
+(Computer Networks and Distributed Systems)}
 
-\vspace{0.8cm}
+\vspace{0.9cm}
 
-% ── Document type ──
-{\normalsize\bfseries Master's thesis}
+{\fontfamily{phv}\bfseries\fontsize{12}{14.4}\selectfont Master's thesis}
+
+\vspace{0.15cm}
+
+{\fontfamily{phv}\bfseries\fontsize{12}{14.4}\selectfont Facultat d'Inform\`{a}tica de Barcelona (FIB)}
+
+\vspace{0.15cm}
+
+{\fontfamily{phv}\bfseries\fontsize{12}{14.4}\selectfont Universitat Polit\`{e}cnica de Catalunya (UPC) -- BarcelonaTech}
+
+\vspace{0.6cm}
+
+{\fontfamily{phv}\bfseries\fontsize{12}{14.4}\selectfont 03/07/2026}
 
 \vspace{0.3cm}
-
-% ── Institution ──
-{\normalsize\bfseries Facultat d'Inform\`{a}tica de Barcelona (FIB)}\\[0.2cm]
-{\normalsize\bfseries Universitat Polit\`{e}cnica de Catalunya (UPC) -- BarcelonaTech}
-
-\vspace{1cm}
-
 \end{center}
+
+\restoregeometry
 \end{titlepage}

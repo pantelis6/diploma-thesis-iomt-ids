@@ -1,13 +1,13 @@
 \chapter{Experimentation and Evaluation}
 \label{ch:experimentation}
 
-This chapter presents the experimental evaluation of the work developed in Chapter~\ref{ch:execution}. The structure follows the logical order of the empirical work: first, assessment of the unified dataset's quality; second, training, comparison, and evaluation of \gls{ids} models on the preprocessed splits (Section~\ref{sec:model-evaluation}); third, synthesis that addresses the research question posed in Section~\ref{sec:rq} in light of those results (Section~\ref{sec:answering-rq}).
+This chapter presents the experimental evaluation of the work developed in Chapter~\ref{ch:execution}. All experiments operate on the published Phase~1 unified release~\cite{unified_iomt_csuc2026} (train/validation/test CSV partitions and companion \texttt{scaler.joblib} / \texttt{metadata.joblib} artifacts described in Section~\ref{subsec:storage}). The structure follows the logical order of the empirical work: first, assessment of the unified dataset's quality; second, training, comparison, and evaluation of \gls{ids} models on the preprocessed splits (Section~\ref{sec:model-evaluation}); third, generalization to real hospital network traffic (Section~\ref{sec:hospnet26}); fourth, synthesis that addresses the research question posed in Section~\ref{sec:rq} in light of those results (Section~\ref{sec:answering-rq}).
 
 % ══════════════════════════════════════════════════════════════════════════════
 \section{Unified Dataset Quality Assessment}
 \label{sec:quality-assessment}
 
-The quality of the unified dataset is evaluated across multiple dimensions to ensure it meets the requirements for effective \gls{ml} model training.
+The quality of the unified dataset~\cite{unified_iomt_csuc2026} is evaluated across multiple dimensions to ensure it meets the requirements for effective \gls{ml} model training.
 
 \subsection{Structural Integrity Verification}
 \label{subsec:structural-integrity}
@@ -335,7 +335,7 @@ Figure~\ref{fig:dt-per-class-f1} breaks down F1-score by class for each tuned re
 \small
 \begin{tabular}{@{}l r r r r@{}}
 \toprule
-\textbf{Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{Support} \\
+\textbf{Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{Support}\textsuperscript{a} \\
 \midrule
 Benign          & 0.99 & 1.00 & 0.99 &     8,018 \\
 DDoS            & 0.97 & 0.86 & 0.91 &   805,244 \\
@@ -344,11 +344,18 @@ MQTT            & 1.00 & 1.00 & 1.00 &    57,891 \\
 Reconnaissance  & 0.99 & 0.99 & 0.99 &     6,904 \\
 Spoofing        & 0.97 & 0.98 & 0.98 &     1,401 \\
 \midrule
-Accuracy        &      &      & 0.89 & 1,201,731 \\
-Macro avg       & 0.94 & 0.96 & 0.95 & 1,201,731 \\
-Weighted avg    & 0.91 & 0.89 & 0.89 & 1,201,731 \\
+Accuracy\textsuperscript{b}        &      &      & 0.89 & 1,201,731 \\
+Macro avg\textsuperscript{c}       & 0.94 & 0.96 & 0.95 & 1,201,731 \\
+Weighted avg\textsuperscript{d}    & 0.91 & 0.89 & 0.89 & 1,201,731 \\
 \bottomrule
 \end{tabular}
+
+\vspace{0.4em}
+\raggedright\footnotesize
+\textsuperscript{a}\,\textbf{Support}: number of true instances of each class in the test set.\\
+\textsuperscript{b}\,\textbf{Accuracy}: fraction of all predictions that are correct (overall, not per-class).\\
+\textsuperscript{c}\,\textbf{Macro avg}: unweighted mean of per-class precision, recall, and F1 (each class contributes equally regardless of size).\\
+\textsuperscript{d}\,\textbf{Weighted avg}: mean of per-class metrics weighted by support (larger classes contribute more).
 \end{table}
 
 The per-class results reveal a three-tier performance structure:
@@ -522,7 +529,7 @@ Figure~\ref{fig:rf-per-class-f1} compares per-class F1 across tuned regimes on t
 
 \begin{table}[H]
 \centering
-\caption{Per-class classification report for the tuned unified Random Forest on the full test set (1,201,731 samples).}
+\caption{Per-class classification report for the tuned unified Random Forest on the full test set (1,201,731 samples). See Table~\ref{tab:dt-perclass-unified} footnotes for column definitions.}
 \label{tab:rf-perclass-unified}
 \small
 \begin{tabular}{@{}l r r r r@{}}
@@ -693,7 +700,7 @@ Figure~\ref{fig:xgb-per-class-f1} compares per-class F1 across tuned regimes on 
 
 \begin{table}[H]
 \centering
-\caption{Per-class classification report for the tuned unified XGBoost on the full test set (1,201,731 samples).}
+\caption{Per-class classification report for the tuned unified XGBoost on the full test set (1,201,731 samples). See Table~\ref{tab:dt-perclass-unified} footnotes for column definitions.}
 \label{tab:xgb-perclass-unified}
 \small
 \begin{tabular}{@{}l r r r r@{}}
@@ -768,8 +775,47 @@ XGBoost        & 0.9382 & 0.9999\textsuperscript{*} & 0.9522 \\
 
 Unified training consistently dominates: all three algorithms exceed 0.94 Macro-F1 on the full test when trained on U, whereas single-source regimes remain weak on the full mixture (especially B2, which never observes DDoS during training). Among algorithms, XGBoost edges out Random Forest and Decision Tree on the unified full test in this experiment, while Random Forest achieves the strongest B1-only full-test score---highlighting that ``best algorithm'' can depend on the deployment slice if one were forced to train single-source.
 
-\subsection{Generalization to Real Hospital Traffic: HospNet26 Evaluation}
-\label{subsec:hospnet26}
+\subsection{Discussion of Results}
+\label{subsec:discussion}
+
+The experiments in Section~\ref{sec:model-evaluation} support two main conclusions. First, \textbf{multi-source integration (regime U) is the decisive factor} for high Macro-F1 and balanced cross-domain behaviour on the unified test set: class-weighted tree models of increasing complexity all benefit from seeing both CIC-style and IoMT-style traffic during training. Second, \textbf{within the unified regime, moderate complexity gains are incremental}: Decision Tree $\to$ Random Forest $\to$ XGBoost improves full-test Macro-F1 from 0.9480 to 0.9522---meaningful but smaller than the $\approx$0.20--0.75 swing induced by switching from single-source to unified training. The persistent DDoS/DoS confusion across all three families indicates a \emph{feature-representation} limitation (window statistics without explicit multi-source diversity) more than a \emph{model-capacity} ceiling.
+
+\paragraph{Statistical significance of pairwise model comparisons (McNemar's test).}
+Following the recommendation of Lones~\cite{lones2024avoid}, statistical significance of the classifier differences is assessed with \textbf{McNemar's test}~\cite{mcnemar1947note}, which is designed for paired observations on the same test set. For each pair of tuned Unified models, the contingency table records $b$ (samples where model~A is correct and model~B is wrong) and $c$ (samples where model~A is wrong and model~B is correct); the test statistic with Yates' continuity correction is $\chi^2 = (|b-c|-1)^2\,/\,(b+c)$, evaluated against $\chi^2_1$.
+
+Table~\ref{tab:mcnemar} reports the results. The \emph{relative error reduction} (RER) $= (e_A - e_B)/e_A \times 100$ provides the effect-size complement, since with $N=1{,}201{,}731$ test samples even trivially small differences yield $p \ll 0.001$.
+
+\begin{table}[H]
+\centering
+\caption{McNemar's test results for pairwise comparison of tuned Unified models on the full test set ($N=1{,}201{,}731$). $b$: model~A correct, model~B wrong; $c$: model~A wrong, model~B correct; RER: relative error reduction A~$\to$~B (positive $=$ B better).}
+\label{tab:mcnemar}
+\small
+\begin{tabular}{@{}l c c r r c@{}}
+\toprule
+\textbf{Pair (A vs B)} & $b$ & $c$ & $\chi^2$ (Yates) & $p$-value & \textbf{RER (\%)} \\
+\midrule
+DT vs RF  & 6,919 & 6,372 & 22.43 & $2.2 \times 10^{-6}$ & $-0.41$ \\
+DT vs XGB & 7,314 & 11,297 & 851.99 & $< 10^{-15}$ & $+2.98$ \\
+RF vs XGB & 4,246 & 8,776 & 1{,}575.17 & $< 10^{-15}$ & $+3.38$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\FloatBarrier
+
+Three observations deserve emphasis.
+
+\begin{enumerate}[nosep]
+  \item \textbf{XGBoost vs DT and RF are statistically and practically significant.} Both comparisons yield $\chi^2 > 850$ with $p < 10^{-15}$ and a relative error reduction of approximately 3\%, confirming that XGBoost's advantage is not a sampling artefact.
+  \item \textbf{DT vs RF: statistically significant, but the direction is counter-intuitive.} Although RF achieves a higher Macro-F1 than DT (0.9487 vs 0.9480), it actually makes \emph{more} total errors (134,071 vs 133,524), resulting in a negative RER of $-0.41$\%. This apparent contradiction is resolved by recognising that Macro-F1 weights each class equally: RF redistributes its errors away from minority classes (Benign, Reconnaissance, Spoofing) toward the majority class (DDoS/DoS boundary), which penalises overall accuracy but improves the per-class average. This is precisely the behaviour intended by the balanced-class-weight protocol, and it illustrates why Macro-F1 is the appropriate primary metric for this imbalanced dataset.
+  \item \textbf{Large-sample caveat.} With $N > 10^6$, McNemar's test detects statistically significant differences even when the practical effect is negligible. The RER column should therefore be consulted alongside the $p$-value. A RER of $-0.41$\% (DT vs RF) represents approximately 547 fewer correct predictions per model out of 1.2 million---a marginal real-world difference.
+\end{enumerate}
+
+\paragraph{Hyperparameter optimisation beyond RandomizedSearchCV.}
+This thesis deliberately uses \texttt{RandomizedSearchCV} with a fixed iteration budget for all models to preserve methodological comparability. In industrial pipelines, \textbf{Bayesian optimisation} (e.g.\ Optuna with the Tree-structured Parzen Estimator) or multi-fidelity schedulers (Hyperband, BOHB) can often reach equal or better validation scores with fewer expensive full-data evaluations, especially when combined with early pruning of unpromising trials. Adopting such tools is a natural extension for future work, provided the same outer train/validation/test discipline is maintained.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Generalization to Real Hospital Traffic: HospNet26 Evaluation}
+\label{sec:hospnet26}
 
 The evaluations presented in Sections~\ref{subsec:decision-tree}--\ref{subsec:model-comparison} are performed on test slices drawn from the same two laboratory datasets (CICIoMT2024 and IoMT-TrafficData) used for training. A more demanding generalization test is to apply the models to \emph{real} hospital network traffic that was captured in a live clinical environment and was not seen during any phase of training or tuning.
 
@@ -831,44 +877,6 @@ Both strategies are designed to be low-cost and operationally feasible: they req
 
 In summary, the HospNet26 evaluation reveals a critical open challenge: the unified models, despite strong performance on held-out laboratory data, are not yet ready for zero-shot deployment in a real clinical network without a benign-traffic recalibration step. This finding strengthens the thesis argument that dataset diversity must encompass \emph{real} deployment environments, not only multi-source laboratory collections, and provides a clear, actionable research direction for bridging the laboratory-to-clinic gap.
 
-\subsection{Discussion of Results}
-\label{subsec:discussion}
-
-The experiments in Section~\ref{sec:model-evaluation} support two main conclusions. First, \textbf{multi-source integration (regime U) is the decisive factor} for high Macro-F1 and balanced cross-domain behaviour on the unified test set: class-weighted tree models of increasing complexity all benefit from seeing both CIC-style and IoMT-style traffic during training. Second, \textbf{within the unified regime, moderate complexity gains are incremental}: Decision Tree $\to$ Random Forest $\to$ XGBoost improves full-test Macro-F1 from 0.9480 to 0.9522---meaningful but smaller than the $\approx$0.20--0.75 swing induced by switching from single-source to unified training. The persistent DDoS/DoS confusion across all three families indicates a \emph{feature-representation} limitation (window statistics without explicit multi-source diversity) more than a \emph{model-capacity} ceiling.
-
-\paragraph{Statistical significance of pairwise model comparisons (McNemar's test).}
-Following the recommendation of Lones~\cite{lones2024avoid}, statistical significance of the classifier differences is assessed with \textbf{McNemar's test}~\cite{mcnemar1947note}, which is designed for paired observations on the same test set. For each pair of tuned Unified models, the contingency table records $b$ (samples where model~A is correct and model~B is wrong) and $c$ (samples where model~A is wrong and model~B is correct); the test statistic with Yates' continuity correction is $\chi^2 = (|b-c|-1)^2\,/\,(b+c)$, evaluated against $\chi^2_1$.
-
-Table~\ref{tab:mcnemar} reports the results. The \emph{relative error reduction} (RER) $= (e_A - e_B)/e_A \times 100$ provides the effect-size complement, since with $N=1{,}201{,}731$ test samples even trivially small differences yield $p \ll 0.001$.
-
-\begin{table}[H]
-\centering
-\caption{McNemar's test results for pairwise comparison of tuned Unified models on the full test set ($N=1{,}201{,}731$). $b$: model~A correct, model~B wrong; $c$: model~A wrong, model~B correct; RER: relative error reduction A~$\to$~B (positive $=$ B better).}
-\label{tab:mcnemar}
-\small
-\begin{tabular}{@{}l c c r r c@{}}
-\toprule
-\textbf{Pair (A vs B)} & $b$ & $c$ & $\chi^2$ (Yates) & $p$-value & \textbf{RER (\%)} \\
-\midrule
-DT vs RF  & 6,919 & 6,372 & 22.43 & $2.2 \times 10^{-6}$ & $-0.41$ \\
-DT vs XGB & 7,314 & 11,297 & 851.99 & $< 10^{-15}$ & $+2.98$ \\
-RF vs XGB & 4,246 & 8,776 & 1{,}575.17 & $< 10^{-15}$ & $+3.38$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-\FloatBarrier
-
-Three observations deserve emphasis.
-
-\begin{enumerate}[nosep]
-  \item \textbf{XGBoost vs DT and RF are statistically and practically significant.} Both comparisons yield $\chi^2 > 850$ with $p < 10^{-15}$ and a relative error reduction of approximately 3\%, confirming that XGBoost's advantage is not a sampling artefact.
-  \item \textbf{DT vs RF: statistically significant, but the direction is counter-intuitive.} Although RF achieves a higher Macro-F1 than DT (0.9487 vs 0.9480), it actually makes \emph{more} total errors (134,071 vs 133,524), resulting in a negative RER of $-0.41$\%. This apparent contradiction is resolved by recognising that Macro-F1 weights each class equally: RF redistributes its errors away from minority classes (Benign, Reconnaissance, Spoofing) toward the majority class (DDoS/DoS boundary), which penalises overall accuracy but improves the per-class average. This is precisely the behaviour intended by the balanced-class-weight protocol, and it illustrates why Macro-F1 is the appropriate primary metric for this imbalanced dataset.
-  \item \textbf{Large-sample caveat.} With $N > 10^6$, McNemar's test detects statistically significant differences even when the practical effect is negligible. The RER column should therefore be consulted alongside the $p$-value. A RER of $-0.41$\% (DT vs RF) represents approximately 547 fewer correct predictions per model out of 1.2 million---a marginal real-world difference.
-\end{enumerate}
-
-\paragraph{Hyperparameter optimisation beyond RandomizedSearchCV.}
-This thesis deliberately uses \texttt{RandomizedSearchCV} with a fixed iteration budget for all models to preserve methodological comparability. In industrial pipelines, \textbf{Bayesian optimisation} (e.g.\ Optuna with the Tree-structured Parzen Estimator) or multi-fidelity schedulers (Hyperband, BOHB) can often reach equal or better validation scores with fewer expensive full-data evaluations, especially when combined with early pruning of unpromising trials. Adopting such tools is a natural extension for future work, provided the same outer train/validation/test discipline is maintained.
-
 % ══════════════════════════════════════════════════════════════════════════════
 \section{Answering the Research Question}
 \label{sec:answering-rq}
@@ -903,7 +911,7 @@ Single-source models exhibit catastrophic cross-domain failure: the best single-
 Within the unified regime, the Macro-F1 improvement from DT to XGBoost is +0.42 percentage points (0.9480 $\to$ 0.9522). Switching from the best single-source model (B1-RF, 0.7395) to the weakest unified model (U-DT, 0.9480) produces a +20.85 percentage-point jump. The contribution of integration is therefore \textbf{50$\times$ larger} than the contribution of model complexity, directly answering the research question: dataset integration is the primary lever for improving generalizability.
 
 \paragraph{Claim 3: A residual generalization gap persists toward real clinical environments.}
-The HospNet26 evaluation (Section~\ref{subsec:hospnet26}) reveals that Benign prediction rates on real hospital traffic range from 3.7\% to 10.0\%, indicating that even unified multi-source training on laboratory datasets does not close the distributional gap to live clinical networks. This finding qualifies the positive answer to the research question: integration of \emph{laboratory} sources improves cross-domain generalization \emph{among those sources}, but deployment-level generalizability requires incorporating representative samples from the target operational environment---a direction explored in Section~\ref{subsec:hospnet26} and elaborated in the future-work discussion (Chapter~\ref{ch:conclusions}).
+The HospNet26 evaluation (Section~\ref{sec:hospnet26}) reveals that Benign prediction rates on real hospital traffic range from 3.7\% to 10.0\%, indicating that even unified multi-source training on laboratory datasets does not close the distributional gap to live clinical networks. This finding qualifies the positive answer to the research question: integration of \emph{laboratory} sources improves cross-domain generalization \emph{among those sources}, but deployment-level generalizability requires incorporating representative samples from the target operational environment---a direction explored in Section~\ref{sec:hospnet26} and elaborated in the future-work discussion (Chapter~\ref{ch:conclusions}).
 
 % ══════════════════════════════════════════════════════════════════════════════
 \section{Chapter Summary}
@@ -918,9 +926,9 @@ This chapter presented the empirical evaluation of the unified dataset across fi
 
   \item \textbf{Cross-domain and per-class analysis}: The unified regime (U) consistently dominated both single-source baselines, achieving Macro-F1 of 0.9480 (DT), 0.9487 (RF), and 0.9522 (XGBoost) on the full test set. The DDoS/DoS confusion boundary was identified as a persistent feature-representation limitation, accounting for $>$99\% of all errors across all three models.
 
-  \item \textbf{Real-world generalization} (Section~\ref{subsec:hospnet26}): Deploying the models on 1.26 million unlabelled windows from a real German hospital network (HospNet26) revealed a sharp specificity drop (Benign rate 3.7--10.0\%), quantifying the covariate shift between laboratory and clinical traffic and motivating domain-adaptation as a priority for future work.
+  \item \textbf{Real-world generalization} (Section~\ref{sec:hospnet26}): Deploying the models on 1.26 million unlabelled windows from a real German hospital network (HospNet26) revealed a sharp specificity drop (Benign rate 3.7--10.0\%), quantifying the covariate shift between laboratory and clinical traffic and motivating domain-adaptation as a priority for future work.
 
-  \item \textbf{Statistical significance} (Section~\ref{subsec:discussion}): McNemar's test confirmed that XGBoost's advantage over DT and RF is both statistically significant and practically meaningful ($\approx$3\% relative error reduction), while the DT-vs-RF difference, though statistically significant, is practically marginal.
+  \item \textbf{Statistical significance} (Section~\ref{subsec:discussion}, within Section~\ref{sec:model-evaluation}): McNemar's test confirmed that XGBoost's advantage over DT and RF is both statistically significant and practically meaningful ($\approx$3\% relative error reduction), while the DT-vs-RF difference, though statistically significant, is practically marginal.
 \end{enumerate}
 
 Together, these results provide a comprehensive answer to the research question: multi-source integration is the decisive factor for improving IDS generalizability across laboratory IoMT environments, while closing the residual gap to real clinical networks remains an open challenge requiring targeted data collection.

@@ -18,13 +18,13 @@ The integration strategy is structured as a multi-stage pipeline, illustrated in
 
     \item \textbf{Quality-first processing}: Data quality assurance is integrated as a core pipeline stage, not an afterthought, ensuring that missing values, outliers, and distribution anomalies are systematically addressed.
 
-    \item \textbf{Extensibility}: The pipeline is designed to accommodate additional datasets (e.g., CICIoT2023, or future custom datasets from the MIoTTA-UPC testbed) without requiring architectural modifications.
+    \item \textbf{Extensibility}: The pipeline is designed to accommodate additional datasets (e.g., future custom datasets from the MIoTTA-UPC testbed) without requiring architectural modifications.
 \end{enumerate}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{pipeline_overview.png}
-\caption{Overview of the multi-stage integration pipeline. Raw packet captures from three datasets are processed through MIOTTA-NPT with identical configuration, yielding standardized 73-feature representations. These are then passed through the integration pipeline stages (label harmonization, data quality assurance, feature scaling, and stratified splitting) to produce the final unified ML-ready dataset. Dashed elements indicate planned Phase~2 components.}
+\caption{Overview of the multi-stage integration pipeline. Raw packet captures from CICIoMT2024 and IoMT-TrafficData are processed through MIOTTA-NPT with identical configuration, yielding standardized 73-feature representations. These are then passed through the integration pipeline stages (label harmonization, data quality assurance, feature scaling, and stratified splitting) to produce the final unified ML-ready dataset.}
 \label{fig:pipeline-overview}
 \end{figure}
 
@@ -39,26 +39,24 @@ The selection of datasets for integration is driven by three criteria: (i)~domai
 \caption{Dataset selection criteria evaluation.}
 \label{tab:selection-criteria}
 \small
-\begin{tabularx}{\textwidth}{@{}l c c c X@{}}
+\begin{tabularx}{\textwidth}{@{}l c c X@{}}
 \toprule
-\textbf{Dataset} & \textbf{Domain} & \textbf{PCAP} & \textbf{Phase} & \textbf{Complementary Coverage} \\
+\textbf{Dataset} & \textbf{Domain} & \textbf{PCAP} & \textbf{Complementary Coverage} \\
 \midrule
-CICIoMT2024 & IoMT & \checkmark & 1 & Multi-protocol IoMT attacks (18 types) \\
-IoMT-TrafficData & IoMT & \checkmark & 1 & Hospital testbed attacks, data malformation \\
-CICIoT2023 & IoT & \checkmark & 2 & Broad IoT threats, Mirai, web attacks (33 types) \\
+CICIoMT2024 & IoMT & \checkmark & Multi-protocol IoMT attacks (18 types) \\
+IoMT-TrafficData & IoMT & \checkmark & Hospital testbed attacks, data malformation \\
+HospNet26 & Real hospital & \checkmark & Real clinical traffic (benign only) — generalization probe \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-The integration is organized into two phases:
+The integration focuses on the two \gls{iomt}-specific datasets:
 
 \begin{itemize}
-    \item \textbf{Phase~1 (IoMT-specific):} Integrates the two \gls{iomt}-specific datasets (CICIoMT2024 and IoMT-TrafficData) that share a common domain focus, yielding a unified \gls{iomt} dataset with diverse attack coverage.
-
-    \item \textbf{Phase~2 (IoMT + general IoT):} Extends the unified \gls{iomt} dataset by incorporating the CICIoT2023 general \gls{iot} dataset, broadening the attack coverage to include threats not typically associated with medical environments but relevant to the broader network ecosystem in which \gls{iomt} devices operate.
+    \item \textbf{Phase~1 (IoMT integration):} Integrates CICIoMT2024 and IoMT-TrafficData, which share a common \gls{iomt} domain focus, yielding a unified dataset with diverse attack coverage. The resulting artifact is published for community reuse~\cite{unified_iomt_csuc2026}.
 \end{itemize}
 
-This phased approach allows the integration process to be validated incrementally: Phase~1 can be completed and evaluated independently, providing a usable dataset even if the timeline does not permit the full execution of Phase~2.
+Additionally, the trained models are evaluated on HospNet26 real hospital network traffic as an out-of-distribution generalization test, without any retraining or adaptation.
 
 % ══════════════════════════════════════════════════════════════════════════════
 \section{Feature Standardization via MIOTTA-NPT}
@@ -98,12 +96,10 @@ The strict identity of the feature spaces across datasets---verified empirically
 \subsection{Progressive Deployment of MIOTTA-NPT}
 \label{subsec:progressive-miotta}
 
-At the time of writing, the MIOTTA-NPT tool has been applied to the CICIoMT2024 and IoMT-TrafficData datasets, producing the MIOTTA-processed versions used in Phase~1 of the integration. The processing of CICIoT2023 is planned for a subsequent stage (Phase~2), following the same configuration parameters to ensure consistency.
-
 The pipeline is designed to be agnostic to the number of input datasets: adding a new MIOTTA-processed dataset requires only the creation of a corresponding label mapping (Section~\ref{sec:label-harmonization}) and its inclusion in the concatenation stage. This extensibility also accommodates future datasets generated from the MIoTTA-UPC testbed under development at the university.
 
 % ══════════════════════════════════════════════════════════════════════════════
-\section{Two-Phase Integration Architecture}
+\section{Integration Architecture}
 \label{sec:two-phase}
 
 \subsection{Phase 1: IoMT Semantic Integration}
@@ -120,18 +116,6 @@ Phase~1 focuses on the integration of the two \gls{iomt}-specific datasets (CICI
 
 The \textit{semantic} nature of this phase refers to the careful attention paid to ensuring that the mapped labels carry consistent meaning across the integrated dataset, and that any dataset-specific characteristics (e.g., NaN values in TCP flag features for non-TCP traffic) are understood and handled consistently.
 
-\subsection{Phase 2: IoMT + IoT Pipeline Integration}
-\label{subsec:phase2}
-
-Phase~2 extends the unified \gls{iomt} dataset from Phase~1 by incorporating the CICIoT2023 dataset, which has been (or will be) processed through the same MIOTTA-NPT configuration. This phase introduces additional integration considerations:
-
-\begin{enumerate}
-    \item \textbf{Domain gap management}: The CICIoT2023 data originates from a general \gls{iot} environment, not an \gls{iomt}-specific setting. The source attribution column enables explicit modeling of this domain difference during model training and evaluation.
-    \item \textbf{Scale normalization}: Feature scaling is applied after concatenation to ensure that differences in value ranges across datasets do not bias model training. Standardization (zero mean, unit variance) is applied per feature across the entire unified dataset.
-    \item \textbf{Extended label harmonization}: The CICIoT2023 attack taxonomy includes categories (e.g., Mirai botnet, brute force, web-based attacks) not present in the \gls{iomt} datasets. The three-level labeling scheme must be extended to accommodate these additional attack types while maintaining consistency with the Phase~1 labels.
-    \item \textbf{Stratified splitting}: The train/validation/test split is performed with stratification by both label distribution and source dataset, ensuring that each partition maintains representative proportions from all constituent sources.
-\end{enumerate}
-
 % ══════════════════════════════════════════════════════════════════════════════
 \section{Label Harmonization}
 \label{sec:label-harmonization}
@@ -144,7 +128,7 @@ The absence of a common labeling convention across datasets necessitates a syste
 \begin{description}
     \item[Level 1 --- Binary (\texttt{label\_binary}):] Classifies each record as either \texttt{Benign} or \texttt{Attack}. This level is useful for basic intrusion detection (is there an attack?) and provides the most balanced class distribution.
 
-    \item[Level 2 --- Category (\texttt{label\_category}):] Groups attack types into nine broad categories: \texttt{Benign}, \texttt{DDoS}, \texttt{DoS}, \texttt{MQTT}, \texttt{Reconnaissance}, \texttt{Spoofing}, \texttt{Mirai}, \texttt{Web-based}, and \texttt{Brute Force}. For Phase~1, the operational mapping used for model development adopts a dedicated \texttt{MQTT} category: all MQTT-related attacks (\texttt{MQTT-DDoS-*}, \texttt{MQTT-DoS-*}, \texttt{MQTT-Malformed\_Data}, and \texttt{MQTT Malaria}) are grouped under \texttt{MQTT}. The remaining categories retain nature-based semantics, while \texttt{Mirai}, \texttt{Web-based}, and \texttt{Brute Force} are reserved for Phase~2 with CICIoT2023. This level supports multi-class classification at a practical operational level, enabling security analysts to understand both attack nature and protocol-oriented behavior.
+    \item[Level 2 --- Category (\texttt{label\_category}):] Groups attack types into six operational categories used in this thesis: \texttt{Benign}, \texttt{DDoS}, \texttt{DoS}, \texttt{MQTT}, \texttt{Reconnaissance}, and \texttt{Spoofing}. The operational mapping adopts a dedicated \texttt{MQTT} category: all MQTT-related attacks (\texttt{MQTT-DDoS-*}, \texttt{MQTT-DoS-*}, \texttt{MQTT-Malformed\_Data}, and \texttt{MQTT Malaria}) are grouped under \texttt{MQTT}. The remaining categories retain nature-based semantics. This level supports multi-class classification at a practical operational level, enabling security analysts to understand both attack nature and protocol-oriented behavior.
 
     \item[Level 3 --- Fine-grained (\texttt{label\_fine}):] Preserves the original attack type labels from each dataset (e.g., \texttt{DDoS\_TCP\_Flood}, \texttt{ARP\_Spoofing}), with normalization applied to ensure consistent formatting. This level enables the most detailed analysis but may exhibit significant class imbalance due to the uneven representation of specific attack types across datasets.
 \end{description}
@@ -155,7 +139,7 @@ The absence of a common labeling convention across datasets necessitates a syste
 For each dataset, an explicit mapping dictionary defines the correspondence between the original labels and the three harmonized levels. These mappings are developed based on:
 
 \begin{itemize}
-    \item The attack type descriptions provided in the original dataset publications~\cite{dadkhah2024ciciomt, areia2024iomt, neto2023ciciot2023}.
+    \item The attack type descriptions provided in the original dataset publications~\cite{dadkhah2024ciciomt, areia2024iomt}.
     \item Analysis of the attack execution methodologies described by the dataset authors.
     \item Consultation with the thesis advisors to resolve ambiguous cases where an attack type could plausibly belong to multiple categories.
 \end{itemize}
@@ -198,7 +182,7 @@ Feature scaling is applied \textit{after} the train/validation/test split. Compu
 \section{Dataset Provenance and Source Attribution}
 \label{sec:provenance}
 
-Each record in the unified dataset includes a \texttt{source} column that identifies its dataset of origin (e.g., \texttt{CICIoMT2024}, \texttt{IoMT-TrafficData}, \texttt{CICIoT2023}). This simple but critical mechanism enables several advanced evaluation strategies:
+Each record in the unified dataset includes a \texttt{source} column that identifies its dataset of origin (e.g., \texttt{CICIoMT2024}, \texttt{IoMT-TrafficData}). This simple but critical mechanism enables several advanced evaluation strategies:
 
 \begin{itemize}
     \item \textbf{Cross-domain evaluation}: Models can be trained on one or more source datasets and tested on held-out data from a different source, directly measuring cross-domain generalizability.
@@ -228,7 +212,6 @@ This chapter has presented the complete specification and design of the dataset 
 
 \begin{enumerate}
     \item \textbf{MIOTTA-NPT as the unification backbone}: Processing all datasets through the same tool with identical configuration eliminates feature heterogeneity at the source.
-    \item \textbf{Two-phase integration}: The phased approach allows incremental validation and provides flexibility in the project timeline.
     \item \textbf{Three-level label harmonization}: Multiple classification granularities support diverse experimental setups.
     \item \textbf{Provenance tracking}: Source attribution enables rigorous cross-domain evaluation.
     \item \textbf{Quality-integrated pipeline}: Data quality assurance is embedded as a core pipeline stage.

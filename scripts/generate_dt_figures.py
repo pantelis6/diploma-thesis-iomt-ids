@@ -149,15 +149,16 @@ def main():
     # Comparison: B1 vs B2 vs U
     available = [r for r in ("B1", "B2", "U") if r in models]
     if len(available) == 3:
-        fig, axes = plt.subplots(1, 3, figsize=(20, 8))
+        fig, axes = plt.subplots(1, 3, figsize=(22, 9))
         for ax, r in zip(axes, available):
             imp = models[r].feature_importances_
             idx = np.argsort(imp)[::-1][:15]
             ax.barh(range(15), imp[idx[::-1]], align="center", color="steelblue")
             ax.set_yticks(range(15))
-            ax.set_yticklabels([feature_cols[i] for i in idx[::-1]], fontsize=9)
-            ax.set_xlabel("Importance")
-            ax.set_title(f"{r} ({REGIME_LABEL[r]})")
+            ax.set_yticklabels([feature_cols[i] for i in idx[::-1]], fontsize=13)
+            ax.set_xlabel("Importance", fontsize=13)
+            ax.tick_params(axis='x', labelsize=12)
+            ax.set_title(f"{r} ({REGIME_LABEL[r]})", fontsize=14)
         plt.suptitle("Top-15 Feature Importances by Regime (Tuned DT)", fontsize=14)
         plt.tight_layout()
         path = FIGURES_DIR / "ch5_dt_feature_importance_comparison.png"

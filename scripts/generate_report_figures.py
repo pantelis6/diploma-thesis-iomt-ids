@@ -91,69 +91,120 @@ def load_original_iomt():
 # FIGURE 1: Integration Pipeline Overview Diagram (Chapter 3)
 # ═══════════════════════════════════════════════════════════════════════════
 def fig_pipeline_overview():
-    """Schematic diagram of the integration pipeline."""
-    fig, ax = plt.subplots(figsize=(12, 7))
-    ax.set_xlim(0, 12)
-    ax.set_ylim(0, 7)
+    """Schematic diagram of the integration pipeline (two-dataset scope)."""
+    from matplotlib.patches import FancyBboxPatch
+
+    fig, ax = plt.subplots(figsize=(16, 7.5))
+    ax.set_xlim(0, 16)
+    ax.set_ylim(0, 7.5)
     ax.axis('off')
+    fig.patch.set_facecolor('#FAFAFA')
+    ax.set_facecolor('#FAFAFA')
 
-    box_style = dict(boxstyle='round,pad=0.4', facecolor='#E3F2FD', edgecolor='#1565C0', linewidth=1.5)
-    tool_style = dict(boxstyle='round,pad=0.4', facecolor='#FFF3E0', edgecolor='#E65100', linewidth=1.5)
-    result_style = dict(boxstyle='round,pad=0.4', facecolor='#E8F5E9', edgecolor='#2E7D32', linewidth=1.5)
-    phase_style = dict(boxstyle='round,pad=0.3', facecolor='#F3E5F5', edgecolor='#6A1B9A', linewidth=1.2)
+    # Colour palette
+    C_SRC   = '#DBEAFE'   # source datasets
+    C_SRC_E = '#1D4ED8'
+    C_TOOL  = '#FEF3C7'   # MIOTTA-NPT
+    C_TOOL_E = '#D97706'
+    C_PIPE  = '#D1FAE5'   # pipeline stages
+    C_PIPE_E = '#059669'
+    C_OUT   = '#FCE7F3'   # output
+    C_OUT_E = '#BE185D'
+    ARROW   = '#374151'
 
-    # Raw datasets (left)
-    ax.text(1.5, 6.2, 'CICIoMT2024\n(PCAP)', ha='center', va='center', fontsize=10, fontweight='bold', bbox=box_style)
-    ax.text(1.5, 5.0, 'IoMT-TrafficData\n(PCAP)', ha='center', va='center', fontsize=10, fontweight='bold', bbox=box_style)
-    ax.text(1.5, 3.8, 'CICIoT2023\n(PCAP)', ha='center', va='center', fontsize=10, fontweight='bold', bbox=box_style)
+    def draw_box(x, y, w, h, text, facecolor, edgecolor, fontsize=13, bold=False, lw=2.0):
+        shadow = FancyBboxPatch(
+            (x + 0.06, y - 0.06), w, h,
+            boxstyle='round,pad=0.02,rounding_size=0.18',
+            facecolor='#00000018', edgecolor='none', zorder=1,
+        )
+        ax.add_patch(shadow)
+        rect = FancyBboxPatch(
+            (x, y), w, h,
+            boxstyle='round,pad=0.02,rounding_size=0.18',
+            facecolor=facecolor, edgecolor=edgecolor, linewidth=lw, zorder=2,
+        )
+        ax.add_patch(rect)
+        weight = 'bold' if bold else 'normal'
+        ax.text(
+            x + w / 2, y + h / 2, text,
+            ha='center', va='center', fontsize=fontsize,
+            fontweight=weight, color='#111827',
+            linespacing=1.35, zorder=3,
+        )
 
-    # MIOTTA-NPT (center-left)
-    ax.text(4.5, 5.0, 'MIOTTA-NPT\n(combined mode\nwindow=100)', ha='center', va='center', fontsize=10, fontweight='bold', bbox=tool_style)
+    def draw_arrow(x0, y0, x1, y1, rad=0.0):
+        style = f'arc3,rad={rad}' if rad else 'arc3'
+        ax.annotate(
+            '', xy=(x1, y1), xytext=(x0, y0),
+            arrowprops=dict(
+                arrowstyle='-|>', color=ARROW, lw=2.2,
+                connectionstyle=style, shrinkA=4, shrinkB=4,
+            ),
+            zorder=1,
+        )
 
-    # Arrows: datasets → MIOTTA
-    arrow_kw = dict(arrowstyle='->', color='#555', lw=1.5)
-    ax.annotate('', xy=(3.3, 5.0), xytext=(2.6, 6.2), arrowprops=arrow_kw)
-    ax.annotate('', xy=(3.3, 5.0), xytext=(2.6, 5.0), arrowprops=arrow_kw)
-    ax.annotate('', xy=(3.3, 5.0), xytext=(2.6, 3.8), arrowprops=dict(arrowstyle='->', color='#999', lw=1.2, linestyle='dashed'))
-    ax.text(2.6, 3.4, '(planned)', ha='center', va='center', fontsize=8, fontstyle='italic', color='#999')
+    # ── Section labels ───────────────────────────────────────────────────────
+    ax.text(1.55, 6.95, 'Raw Inputs', ha='center', fontsize=11,
+            fontweight='bold', color='#6B7280', style='italic')
+    ax.text(5.05, 6.95, 'Feature Extraction', ha='center', fontsize=11,
+            fontweight='bold', color='#6B7280', style='italic')
+    ax.text(9.55, 6.95, 'Integration Pipeline', ha='center', fontsize=11,
+            fontweight='bold', color='#6B7280', style='italic')
+    ax.text(13.4, 6.95, 'Output', ha='center', fontsize=11,
+            fontweight='bold', color='#6B7280', style='italic')
 
-    # Standardized datasets (center)
-    ax.text(7.0, 6.2, '73 features\nCICIoMT2024', ha='center', va='center', fontsize=9, bbox=dict(boxstyle='round,pad=0.3', facecolor='#E3F2FD', edgecolor='#1565C0', linewidth=1))
-    ax.text(7.0, 5.0, '73 features\nIoMT-TrafficData', ha='center', va='center', fontsize=9, bbox=dict(boxstyle='round,pad=0.3', facecolor='#E3F2FD', edgecolor='#1565C0', linewidth=1))
-    ax.text(7.0, 3.8, '73 features\nCICIoT2023', ha='center', va='center', fontsize=9, color='#999', bbox=dict(boxstyle='round,pad=0.3', facecolor='#F5F5F5', edgecolor='#999', linewidth=1, linestyle='dashed'))
+    # ── Source datasets ──────────────────────────────────────────────────────
+    draw_box(0.3, 4.5, 2.5, 1.55, 'CICIoMT2024\n(raw PCAPs)', C_SRC, C_SRC_E, fontsize=14, bold=True)
+    draw_box(0.3, 2.3, 2.5, 1.55, 'IoMT-TrafficData\n(raw PCAPs)', C_SRC, C_SRC_E, fontsize=14, bold=True)
 
-    # Arrows: MIOTTA → standardized
-    ax.annotate('', xy=(5.9, 5.6), xytext=(5.7, 5.2), arrowprops=arrow_kw)
-    ax.annotate('', xy=(5.9, 5.0), xytext=(5.7, 5.0), arrowprops=arrow_kw)
-    ax.annotate('', xy=(5.9, 4.1), xytext=(5.7, 4.8), arrowprops=dict(arrowstyle='->', color='#999', lw=1.2, linestyle='dashed'))
+    # ── MIOTTA-NPT ───────────────────────────────────────────────────────────
+    draw_box(3.8, 3.05, 2.5, 2.25,
+             'MIOTTA-NPT\n\ncombined mode\n100-pkt window\n73 features',
+             C_TOOL, C_TOOL_E, fontsize=13, bold=True)
 
-    # Pipeline stages (right column)
+    # ── Pipeline stages ───────────────────────────────────────────────────────
     stages = [
-        ('Label\nHarmonization', 6.2),
-        ('Data Quality\nAssurance', 5.0),
-        ('Feature\nScaling', 3.8),
-        ('Source Attribution\n& Stratified Split', 2.6),
+        (7.3, 5.35, 'Label\nHarmonization'),
+        (7.3, 4.05, 'Data Quality\nAssurance'),
+        (7.3, 2.75, 'Feature\nScaling'),
+        (7.3, 1.45, 'Stratified\nSplitting'),
     ]
-    for label, y in stages:
-        ax.text(9.5, y, label, ha='center', va='center', fontsize=9, fontweight='bold', bbox=phase_style)
+    for x, y, label in stages:
+        draw_box(x, y, 2.5, 1.05, label, C_PIPE, C_PIPE_E, fontsize=13, bold=True)
 
-    # Arrows: standardized → pipeline and between stages
-    ax.annotate('', xy=(8.5, 5.6), xytext=(7.9, 5.8), arrowprops=arrow_kw)
+    # ── Output ───────────────────────────────────────────────────────────────
+    draw_box(11.2, 2.85, 4.4, 1.65,
+             'Unified ML-Ready Dataset\n\n8.0 M records · 58 features',
+             C_OUT, C_OUT_E, fontsize=14, bold=True)
+
+    # ── Arrows: sources → MIOTTA-NPT ────────────────────────────────────────
+    draw_arrow(2.8, 5.28, 3.8, 4.55, rad=0.0)
+    draw_arrow(2.8, 3.08, 3.8, 3.80, rad=0.0)
+
+    # ── Arrow: MIOTTA-NPT → first pipeline stage ────────────────────────────
+    draw_arrow(6.3, 4.18, 7.3, 5.88)
+
+    # ── Arrows: between pipeline stages ─────────────────────────────────────
     for i in range(len(stages) - 1):
-        ax.annotate('', xy=(9.5, stages[i+1][1] + 0.4), xytext=(9.5, stages[i][1] - 0.4), arrowprops=arrow_kw)
+        _, y_hi, _ = stages[i]
+        _, y_lo, _ = stages[i + 1]
+        draw_arrow(8.55, y_hi, 8.55, y_lo + 1.05)
 
-    # Final output
-    ax.text(9.5, 1.3, 'Unified ML-Ready\nDataset', ha='center', va='center', fontsize=11, fontweight='bold', bbox=result_style)
-    ax.annotate('', xy=(9.5, 1.7), xytext=(9.5, 2.2), arrowprops=arrow_kw)
+    # ── Arrow: last stage → output ──────────────────────────────────────────
+    draw_arrow(9.8, 1.98, 11.2, 3.68, rad=-0.15)
 
-    # Phase labels
-    ax.text(4.5, 6.7, 'Phase 1: IoMT Integration', ha='center', fontsize=10, fontweight='bold', color='#1565C0',
-            bbox=dict(boxstyle='round,pad=0.2', facecolor='white', edgecolor='#1565C0', linewidth=1, alpha=0.8))
-    ax.text(4.5, 3.3, 'Phase 2: + IoT (planned)', ha='center', fontsize=9, fontstyle='italic', color='#999')
+    # ── Footer note ───────────────────────────────────────────────────────────
+    ax.text(
+        8.0, 0.35,
+        'All datasets processed with identical MIOTTA-NPT configuration  →  identical feature spaces',
+        ha='center', va='center', fontsize=10.5, color='#6B7280', style='italic',
+    )
 
-    fig.savefig(os.path.join(FIG_DIR, 'pipeline_overview.png'))
+    out = os.path.join(FIG_DIR, 'pipeline_overview.png')
+    fig.savefig(out, dpi=200, bbox_inches='tight', facecolor=fig.get_facecolor())
     plt.close(fig)
-    print("  [OK] pipeline_overview.pdf")
+    print("  [OK] pipeline_overview.png")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -414,45 +465,40 @@ def fig_combined_class_distribution(df_cic, df_iomt):
 # FIGURE 9: Original vs MIOTTA Feature Count Comparison (Chapter 4)
 # ═══════════════════════════════════════════════════════════════════════════
 def fig_feature_count_comparison():
-    datasets = ['CICIoMT2024', 'IoMT-TrafficData', 'CICIoT2023']
-    original_features = [45, 101, 47]
-    miotta_features = [73, 73, 73]
-    tools = ['CIC Internal', 'Zeek', 'CIC Internal']
+    datasets = ['CICIoMT2024', 'IoMT-TrafficData']
+    original_features = [45, 101]
+    miotta_features = [73, 73]
+    tools = ['CIC Internal', 'Zeek']
 
-    fig, ax = plt.subplots(figsize=(9, 5))
+    fig, ax = plt.subplots(figsize=(8, 5))
     x = np.arange(len(datasets))
-    width = 0.3
+    width = 0.32
 
     bars1 = ax.bar(x - width/2, original_features, width, label='Original Features',
                    color='#BBDEFB', edgecolor='#1565C0', linewidth=1.2)
     bars2 = ax.bar(x + width/2, miotta_features, width, label='MIOTTA-NPT Features',
-                   color='#FFF3E0', edgecolor='#E65100', linewidth=1.2,
-                   hatch='///' if datasets[2] == 'CICIoT2023' else '')
-
-    ax.bar(x[2] + width/2, miotta_features[2], width, color='#FFF3E0',
-           edgecolor='#E65100', linewidth=1.2, linestyle='dashed', alpha=0.5)
+                   color='#FFF3E0', edgecolor='#E65100', linewidth=1.2)
 
     for bar, val, tool in zip(bars1, original_features, tools):
-        ax.text(bar.get_x() + bar.get_width()/2, val + 1, f'{val}\n({tool})',
-                ha='center', va='bottom', fontsize=8)
-    for i, (bar, val) in enumerate(zip(bars2, miotta_features)):
-        suffix = '\n(planned)' if i == 2 else ''
-        ax.text(bar.get_x() + bar.get_width()/2, val + 1, f'{val}{suffix}',
-                ha='center', va='bottom', fontsize=8)
+        ax.text(bar.get_x() + bar.get_width()/2, val + 1.5, f'{val}\n({tool})',
+                ha='center', va='bottom', fontsize=10)
+    for bar, val in zip(bars2, miotta_features):
+        ax.text(bar.get_x() + bar.get_width()/2, val + 1.5, f'{val}',
+                ha='center', va='bottom', fontsize=10)
 
-    ax.set_ylabel('Number of Features')
+    ax.set_ylabel('Number of Features', fontsize=12)
     ax.set_xticks(x)
-    ax.set_xticklabels(datasets, fontsize=10)
+    ax.set_xticklabels(datasets, fontsize=12)
     ax.set_title('Feature Count: Original vs MIOTTA-NPT Processing', fontsize=13, fontweight='bold')
-    ax.legend(fontsize=10)
+    ax.legend(fontsize=11)
     ax.set_ylim(0, 120)
-    ax.axhline(y=73, color='#E65100', linestyle=':', alpha=0.5, linewidth=1)
-    ax.text(2.5, 75, 'Unified: 73 features', fontsize=9, fontstyle='italic', color='#E65100')
+    ax.axhline(y=73, color='#E65100', linestyle=':', alpha=0.6, linewidth=1.5)
+    ax.text(1.5, 75.5, 'Unified: 73 features', fontsize=10, fontstyle='italic', color='#E65100', ha='right')
 
     plt.tight_layout()
     fig.savefig(os.path.join(FIG_DIR, 'feature_count_comparison.png'))
     plt.close(fig)
-    print("  [OK] feature_count_comparison.pdf")
+    print("  [OK] feature_count_comparison.png")
 
 
 # ═══════════════════════════════════════════════════════════════════════════

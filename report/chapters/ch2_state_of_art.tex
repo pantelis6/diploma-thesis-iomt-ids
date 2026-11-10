@@ -67,15 +67,13 @@ The application of \gls{ml} techniques to intrusion detection has attracted subs
 
 \paragraph{\Gls{dl} approaches.} Neural network architectures, including \glspl{cnn}, \glspl{rnn}, and hybrid models, have demonstrated the ability to learn hierarchical feature representations directly from network data. Recent work has explored \gls{tsc} models that process sequences of packets or traffic windows, capturing temporal dynamics that may be indicative of ongoing attacks~\cite{lopez2025nprint}.
 
-\paragraph{The nPrint paradigm.} A notable development is the nPrint framework~\cite{holland2021nprint}, which proposes representing raw network packets as standardized binary fingerprints that can be directly consumed by \gls{dl} models without manual feature engineering. This approach has been shown to achieve competitive results across multiple networking tasks. The MIOTTA-NPT tool used in this thesis supports nPrint output as one of its export modes~\cite{leon2025miotta}.
-
 \paragraph{Challenges.} Despite the promising results reported in the literature, the practical deployment of \gls{ml}-based \gls{ids} in \gls{iomt} environments faces several persistent challenges: (i)~the lack of representative training data that captures the diversity of real-world attack scenarios, (ii)~the difficulty of achieving generalization across different network environments, and (iii)~the trade-off between detection accuracy and computational efficiency~\cite{domenech2025evaluating}.
 
 % ══════════════════════════════════════════════════════════════════════════════
 \section{Benchmark Datasets for IoMT/IoT Intrusion Detection}
 \label{sec:datasets}
 
-The quality and characteristics of the training data fundamentally determine the performance ceiling of any \gls{ml}-based \gls{ids}. This section reviews the three datasets selected for integration in this thesis, alongside other relevant benchmarks.
+The quality and characteristics of the training data fundamentally determine the performance ceiling of any \gls{ml}-based \gls{ids}. This section reviews the two \gls{iomt}-specific datasets used for training and the real hospital network dataset used for deployment-environment evaluation, alongside other relevant benchmarks.
 
 \subsection{CICIoMT2024}
 \label{subsec:ciciomt2024}
@@ -95,12 +93,14 @@ In its original form, the dataset provides 101 features extracted using Zeek~\ci
 
 This dataset is particularly valuable for its focus on IoMT-specific attack scenarios that complement the CICIoMT2024 coverage, especially in the areas of data malformation and combined attack patterns.
 
-\subsection{CICIoT2023}
-\label{subsec:ciciot2023}
+\subsection{HospNet26}
+\label{subsec:hospnet26}
 
-The CICIoT2023 dataset~\cite{neto2023ciciot2023}, also developed by the \gls{cic}, targets the broader \gls{iot} landscape. It captures network traffic from 105 \gls{iot} devices and incorporates 33 distinct attack types organized into seven categories: \gls{ddos}, \gls{dos}, reconnaissance, web-based attacks, brute force, spoofing, and Mirai botnet variants.
+The HospNet26 dataset~\cite{hospnet26} is a real-world hospital network traffic capture collected from a production clinical network during normal operation in 2026. Unlike the two testbed datasets described above, it contains exclusively legitimate traffic---no injected attacks are present---making it the first publicly available real-world reference dataset for network security research in a healthcare setting~\cite{domenech2026robust}.
 
-With 47 features extracted at the flow and window levels, this dataset provides broad attack coverage that extends beyond \gls{iomt}-specific scenarios into general \gls{iot} threats. While not exclusively focused on medical devices, its inclusion in the integration enables the construction of a unified dataset that captures a wider spectrum of attack behaviors, potentially improving the generalizability of models trained on the resulting data.
+The dataset is organized into four temporal segments (Friday, Weekend, Monday, and Tuesday--Friday), totalling 1,265,240 windows after processing with MIOTTA-NPT in combined mode using the same 100-packet window configuration as the training datasets. All 58 MIOTTA features extracted from HospNet26 are shared with the training feature space, enabling direct model inference without any feature adaptation.
+
+In this thesis, HospNet26 serves as a \textbf{real-world deployment probe}: the trained \gls{ids} models are applied to its traffic without retraining or adaptation. Since all traffic is presumed benign, the fraction of windows classified as \texttt{Benign} (the benign prediction rate $r_B$) provides a quantitative measure of model specificity under genuine clinical network conditions.
 
 \subsection{Other Relevant Datasets}
 \label{subsec:other-datasets}
@@ -111,6 +111,8 @@ Several other datasets have contributed to the \gls{iomt} and \gls{iot} intrusio
     \item \textbf{WUSTL-EHMS}~\cite{hady2020ids}: A dataset from a simulated electronic health monitoring system, incorporating both network and biometric data with 34 flow-level features.
 
     \item \textbf{IoT-Healthcare}~\cite{hussain2021framework}: A dataset using real and simulated medical devices with 50 packet-level features, accompanied by publicly available preprocessing tools.
+
+    \item \textbf{CICIoT2023}~\cite{neto2023ciciot2023}: A large-scale general \gls{iot} dataset from the \gls{cic} capturing network traffic from 105 \gls{iot} devices across 33 attack types. While not used in the integration phase of this thesis, it represents an important benchmark in the broader \gls{iot} intrusion detection literature.
 \end{itemize}
 
 \subsection{Comparative Analysis of Selected Datasets}
@@ -120,27 +122,28 @@ Table~\ref{tab:dataset-comparison} summarizes the key characteristics of the thr
 
 \begin{table}[htbp]
 \centering
-\caption{Comparative summary of the three datasets selected for integration.}
+\caption{Comparative summary of the datasets used in this thesis.}
 \label{tab:dataset-comparison}
 \small
 \begin{tabularx}{\textwidth}{@{}l X X X@{}}
 \toprule
-\textbf{Characteristic} & \textbf{CICIoMT2024} & \textbf{IoMT-TrafficData} & \textbf{CICIoT2023} \\
+\textbf{Characteristic} & \textbf{CICIoMT2024} & \textbf{IoMT-TrafficData} & \textbf{HospNet26} \\
 \midrule
-Domain & IoMT & IoMT & IoT (general) \\
-Year & 2024 & 2024 & 2023 \\
-Devices & 40 (real + emulated) & Real + simulated & 105 IoT devices \\
+Role & Training / testing & Training / testing & Generalization probe \\
+Domain & IoMT testbed & IoMT testbed & Real hospital network \\
+Year & 2024 & 2024 & 2026 \\
+Devices & 40 (real + emulated) & Real + simulated & Production clinical \\
 Protocols & Wi-Fi, MQTT, BLE, ZigBee & MQTT, CoAP & Multiple \\
-Attack types & 18 & 6 categories & 33 \\
-Original features & 45 & 101 (Zeek) & 47 \\
-Extraction tool & CIC internal & Zeek & CIC internal \\
-Extraction level & Flow + Window & Flow & Flow + Window \\
+Attack types & 18 & 6 categories & None (benign only) \\
+Original features & 45 & 101 (Zeek) & N/A \\
+Extraction tool & CIC internal & Zeek & MIOTTA-NPT \\
+Extraction level & Flow + Window & Flow & Window (combined) \\
 PCAP available & Yes & Yes & Yes \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-A critical observation emerges from this comparison: while each dataset provides valuable coverage of different aspects of the threat landscape, their feature spaces are structurally incompatible. The CIC datasets share a similar (though not identical) feature extraction philosophy, while the IoMT-TrafficData dataset employs an entirely different tool and methodology. This heterogeneity constitutes the primary technical challenge addressed by this thesis.
+A critical observation emerges from the two training datasets: CICIoMT2024 and IoMT-TrafficData employ structurally incompatible feature extraction methodologies---CICFlowMeter-based flow statistics versus Zeek-derived per-connection records, respectively. This structural mismatch makes direct concatenation or cross-dataset comparison infeasible without returning to the raw \gls{pcap} captures. HospNet26, by contrast, is already available in MIOTTA-NPT combined-mode format, sharing the same 58-feature representation as the reprocessed training datasets and therefore requiring no feature adaptation for inference. This feature heterogeneity between the two training sources constitutes the primary technical challenge addressed by this thesis.
 
 % ══════════════════════════════════════════════════════════════════════════════
 \section{Network Traffic Preprocessing and Feature Extraction}
@@ -174,6 +177,13 @@ Network traffic feature extraction can be categorized along several dimensions:
 \subsection{MIOTTA-NPT: Network Preprocessing Tool}
 \label{subsec:miotta-npt}
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{miotta_npt_workflow.png}
+\caption{MIOTTA-NPT tool workflow: from raw \gls{pcap} captures to structured feature datasets. The tool supports four extraction modes (packet, flow, window, combined) and two output formats (CSV, nPrint). Source:~\cite{miotta_npt_github}.}
+\label{fig:miotta-workflow}
+\end{figure}
+
 The MIOTTA-NPT (Network Preprocessing Tool)~\cite{leon2025miotta, miotta_npt_github} is a configurable, open-source tool developed by the research group at UPC for transforming \gls{pcap} files into structured datasets. It occupies a central role in this thesis, as it provides the mechanism through which feature heterogeneity across datasets is resolved.
 
 \paragraph{Architecture and modes.} The tool accepts \gls{pcap} files as input and supports two primary output formats: (i) CSV with statistical features, and (ii) nPrint binary representations. For the CSV output, four aggregation modes are available---packet, flow, window, and combined---allowing researchers to configure the extraction granularity according to their experimental needs.
@@ -189,7 +199,7 @@ The MIOTTA-NPT (Network Preprocessing Tool)~\cite{leon2025miotta, miotta_npt_git
     \item Flow dynamics (covariance, variance ratio, weight, magnitude)
 \end{itemize}
 
-\paragraph{Significance for integration.} The key advantage of MIOTTA-NPT for dataset integration is its ability to process raw \gls{pcap} captures from any dataset through the same extraction pipeline, yielding identical feature spaces regardless of the source dataset. By reprocessing the \gls{pcap} files of CICIoMT2024, IoMT-TrafficData, and CICIoT2023 through MIOTTA-NPT with identical configuration parameters (combined mode, window size of 100 packets), the fundamental challenge of feature heterogeneity is resolved at the source rather than through post-hoc feature mapping or engineering.
+\paragraph{Significance for integration.} The key advantage of MIOTTA-NPT for dataset integration is its ability to process raw \gls{pcap} captures from any dataset through the same extraction pipeline, yielding identical feature spaces regardless of the source dataset. By reprocessing the \gls{pcap} files of CICIoMT2024 and IoMT-TrafficData through MIOTTA-NPT with identical configuration parameters (combined mode, window size of 100 packets), the fundamental challenge of feature heterogeneity is resolved at the source rather than through post-hoc feature mapping or engineering.
 
 \paragraph{Comparison with existing tools.} Table~\ref{tab:tool-comparison} positions MIOTTA-NPT relative to other preprocessing tools in the literature.
 
@@ -198,9 +208,9 @@ The MIOTTA-NPT (Network Preprocessing Tool)~\cite{leon2025miotta, miotta_npt_git
 \caption{Comparison of network traffic preprocessing tools~\cite{leon2025miotta}.}
 \label{tab:tool-comparison}
 \small
-\begin{tabularx}{\textwidth}{@{}l c c c c c@{}}
+\begin{tabularx}{\textwidth}{@{}l c X p{2.2cm} c c@{}}
 \toprule
-\textbf{Tool} & \textbf{Year} & \textbf{Extraction Level} & \textbf{Format} & \textbf{Configurable} & \textbf{\# Features} \\
+\textbf{Tool} & \textbf{Year} & \textbf{Extraction Level} & \textbf{Format} & \textbf{Config.} & \textbf{\# Feat.} \\
 \midrule
 CICFlowMeter~\cite{cicflowmeter} & 2016 & Flow & CSV & No & 76 \\
 WUSTL-EHMS~\cite{hady2020ids} & 2020 & Flow & CSV & No & 34 \\
@@ -208,7 +218,7 @@ IoT-Healthcare~\cite{hussain2021framework} & 2021 & Packet & CSV & No & 50 \\
 CICIoT2023~\cite{neto2023ciciot2023} & 2023 & Flow + Window & CSV & No & 47 \\
 CICIoMT2024~\cite{dadkhah2024ciciomt} & 2024 & Flow + Window & CSV & No & 45 \\
 IoMT-TrafficData~\cite{areia2024iomt} & 2024 & Flow + Packet & CSV & No & 64 \\
-\textbf{MIOTTA-NPT}~\cite{leon2025miotta} & \textbf{2025} & \textbf{All levels} & \textbf{CSV, nPrint} & \textbf{Yes} & \textbf{Up to 103} \\
+\textbf{MIOTTA-NPT}~\cite{leon2025miotta} & \textbf{2025} & \textbf{All levels} & \textbf{CSV, nPrint} & \textbf{Yes} & \textbf{103} \\
 \bottomrule
 \end{tabularx}
 \end{table}

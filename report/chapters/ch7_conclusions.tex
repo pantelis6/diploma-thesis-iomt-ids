@@ -9,7 +9,7 @@ This thesis addressed the problem of dataset isolation, feature heterogeneity, a
 
 \begin{enumerate}[nosep]
   \item \textbf{A reproducible integration methodology.}
-  A two-phase pipeline was designed and implemented that transforms two independently developed IoMT datasets (CICIoMT2024 and IoMT-TrafficData) into a single, ML-ready unified dataset of 8,011,534 records. The pipeline uses MIOTTA-NPT as the feature-unification enabler, a three-level label harmonization scheme, StandardScaler normalization, and source-attribution metadata to preserve provenance.
+  A two-phase pipeline was designed and implemented that transforms two independently developed IoMT datasets (CICIoMT2024 and IoMT-TrafficData) into a single, ML-ready unified dataset of 8,011,534 records. The pipeline uses MIOTTA-NPT as the feature-unification enabler, a three-level label harmonization scheme, StandardScaler normalization, and source-attribution metadata to preserve provenance. The Phase~1 MQTT-category release is publicly deposited in the CORA Research Data Repository~\cite{unified_iomt_csuc2026} (\url{https://doi.org/10.34810/DATA3305}).
 
   \item \textbf{Empirical evidence that integration improves generalizability.}
   Three tree-based classifiers (Decision Tree, Random Forest, XGBoost) were trained under three regimes (CIC-only, IoMT-only, Unified). The unified regime consistently dominated: all three classifiers exceeded Macro-F1 of 0.94 on the full test set when trained on the unified data, versus $\leq$\,0.74 for the best single-source model on the same test mix. This 20+ percentage-point improvement demonstrates that the contribution of dataset integration is approximately 50$\times$ larger than the contribution of model complexity.
@@ -22,6 +22,15 @@ This thesis addressed the problem of dataset isolation, feature heterogeneity, a
 
   \item \textbf{Statistical validation.}
   McNemar's test was applied to all pairwise model comparisons on the full test set ($N=1{,}201{,}731$), confirming that XGBoost's advantage is both statistically significant and practically meaningful ($\approx$3\% relative error reduction over DT and RF), while simultaneously demonstrating the importance of reporting effect sizes alongside $p$-values in large-sample settings.
+
+  \item \textbf{Accepted conference paper at a peer-reviewed international venue.}
+  The core findings of this thesis have been \textbf{accepted for publication} as a full paper at the \textbf{Workshop on Cybersecurity in Healthcare Operations (SecHealth)}, co-located with the \textbf{ACM/IEEE ARES 2026 conference} (\url{https://www.ares-conference.eu/SecHealth}), one of the leading international venues in applied cybersecurity research. The paper:
+
+  \begin{quote}
+  P.~Petrakis, J.~Doménech, O.~León, I.\,V.~Martin-Faus and J.~Pegueroles: \textit{``Unifying Heterogeneous IoMT Datasets for Intrusion Detection: From Laboratory Testbeds to Real Hospital Network Evaluation.''} Workshop on Cybersecurity in Healthcare Operations (SecHealth @ ARES 2026), Linköping, Sweden, 2026.
+  \end{quote}
+
+  This acceptance validates that the methodology, results, and clinical-generalization findings of this thesis meet the standards of the international research community in IoMT security.
 \end{enumerate}
 
 % ══════════════════════════════════════════════════════════════════════════════
@@ -55,7 +64,7 @@ The findings of this thesis should be interpreted in light of the following limi
   Both CICIoMT2024 and IoMT-TrafficData were generated in controlled or emulated testbed environments. Their traffic patterns, device populations, and background noise levels differ substantially from those of real clinical networks, as the HospNet26 experiment demonstrated quantitatively.
 
   \item \textbf{Two-source integration only.}
-  The unified dataset integrates two IoMT-specific sources. The originally planned third source (CICIoT2023, a general IoT dataset) was not included in the current integration due to time constraints. Adding it would increase attack-type coverage and provide a third domain for cross-domain evaluation.
+  The unified dataset integrates two IoMT-specific sources (CICIoMT2024 and IoMT-TrafficData). Incorporating additional datasets with broader attack-type coverage and different network environments would further strengthen generalizability and provide additional cross-domain evaluation axes.
 
   \item \textbf{Window size as a fixed hyperparameter.}
   All feature extraction was performed with a fixed window size of 100 packets. The impact of window size on classification performance was not explored; smaller or larger windows may better capture certain attack patterns (e.g., slow-rate attacks or protocol-specific bursts).
@@ -78,10 +87,10 @@ Building on the contributions and limitations identified above, several concrete
 
 \begin{enumerate}[nosep]
   \item \textbf{Benign-traffic recalibration with real clinical data.}
-  The most impactful next step is to close the laboratory-to-clinic gap quantified in Section~\ref{subsec:hospnet26}. Two strategies were proposed: (a)~few-shot Benign fine-tuning using a small supervised collection of confirmed-benign hospital windows, and (b)~threshold-based post-hoc calibration of model probability outputs. Evaluating both approaches on HospNet26 and measuring the required sample size for acceptable specificity ($\geq$80\%) is an immediate priority.
+  The most impactful next step is to close the laboratory-to-clinic gap quantified in Section~\ref{sec:hospnet26}. Two strategies were proposed: (a)~few-shot Benign fine-tuning using a small supervised collection of confirmed-benign hospital windows, and (b)~threshold-based post-hoc calibration of model probability outputs. Evaluating both approaches on HospNet26 and measuring the required sample size for acceptable specificity ($\geq$80\%) is an immediate priority.
 
   \item \textbf{Incorporation of additional data sources.}
-  Processing CICIoT2023 through MIOTTA-NPT and adding it to the unified dataset would extend attack-type coverage to 33 categories and introduce a third cross-domain evaluation axis. The existing pipeline is designed to support this extension with minimal modification.
+  Extending the unified dataset with further IoMT or IoT datasets processed through MIOTTA-NPT would broaden attack-type coverage and introduce additional cross-domain evaluation axes. The modular pipeline design supports this extension with minimal modification, enabling future datasets to be integrated by following the same feature-extraction and label-harmonization steps.
 
   \item \textbf{Advanced hyperparameter optimisation.}
   Bayesian optimisation (e.g., Optuna with TPE) or multi-fidelity schedulers (Hyperband, BOHB) could improve upon the RandomizedSearchCV budget used in this thesis, particularly for XGBoost where the search space is high-dimensional. Such tools should be applied within the same outer train/validation/test discipline to preserve comparability.
@@ -93,5 +102,5 @@ Building on the contributions and limitations identified above, several concrete
   Exploring temporal architectures (1D-CNN, LSTM, Transformer) that operate on sequences of packets rather than pre-aggregated window statistics may capture attack dynamics invisible to per-window features. MIOTTA-NPT's \emph{nPrint} mode, which produces per-packet binary representations, provides a natural input format for such models.
 
   \item \textbf{Real-time deployment considerations.}
-  Translating the offline models into an operational IDS prototype---with constraints on inference latency, memory footprint, and alert management---is a necessary step toward practical impact. The tree-based models used here have favorable inference costs, but the integration with a network tap, the handling of concept drift, and the alert-fatigue implications of the observed false-positive rates (Section~\ref{subsec:hospnet26}) require dedicated engineering.
+  Translating the offline models into an operational IDS prototype---with constraints on inference latency, memory footprint, and alert management---is a necessary step toward practical impact. The tree-based models used here have favorable inference costs, but the integration with a network tap, the handling of concept drift, and the alert-fatigue implications of the observed false-positive rates (Section~\ref{sec:hospnet26}) require dedicated engineering.
 \end{enumerate}
