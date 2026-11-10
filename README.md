@@ -1,13 +1,21 @@
 # Unifying Heterogeneous IoMT Datasets for Intrusion Detection
 
-**Master's Thesis** — Universitat Politècnica de Catalunya (UPC), Facultat d'Informàtica de Barcelona (FIB)
-Master's Degree in Innovation and Research in Informatics (Computer Networks and Distributed Systems)
+> *From laboratory testbeds to real hospital network evaluation.*
+
+Machine-learning intrusion detection for the Internet of Medical Things (IoMT): a reproducible pipeline that unifies two public IoMT datasets into **8 million ML-ready records**, tree-based classifiers that reach **Macro-F1 0.95** on the unified data, and the first evaluation of such models on **real hospital network traffic**.
+
+| | |
+|---|---|
+| **Paper** | *Unifying Heterogeneous IoMT Datasets for Intrusion Detection: From Laboratory Testbeds to Real Hospital Network Evaluation*, SecHealth workshop @ ARES 2026, Springer LNCS vol. 16901 — [doi.org/10.1007/978-3-032-35579-9_7](https://doi.org/10.1007/978-3-032-35579-9_7) · [author's accepted manuscript (PDF)](paper/main.pdf) |
+| **Dataset** | *CICIoMT2024 + IoMT-TrafficData: a unified heterogeneous IoMT dataset for intrusion detection*, CORA Research Data Repository, CC BY 4.0 — [doi.org/10.34810/DATA3305](https://doi.org/10.34810/DATA3305) |
+| **Thesis** | [UPC edition (PDF)](report/main.pdf) · [NTUA edition with Greek summary (PDF)](report/ntua/main_ntua_final.pdf) |
 
 **Author:** Pantelis Petrakis
-**Supervisor:** René Serral Gracià (Department of Computer Architecture)
-**Advisors:** Josep Pegueroles, Jordi Domènech (Department of Network Engineering)
 
-> *From laboratory testbeds to real hospital network evaluation.*
+Diploma thesis (Integrated Master) of the School of Electrical and Computer Engineering, National Technical University of Athens (NTUA), carried out at the Facultat d'Informàtica de Barcelona (FIB), Universitat Politècnica de Catalunya (UPC), under the Erasmus+ programme.
+
+* **UPC:** René Serral Gracià (supervisor, Department of Computer Architecture), Josep Pegueroles (co-supervisor, Department of Network Engineering), Jordi Doménech (advisor)
+* **NTUA:** Emmanouil Varvarigos (supervisor)
 
 ---
 
@@ -25,8 +33,6 @@ This thesis addresses both problems. It contributes a complete, reproducible PCA
 ## 2. Research Question and Contributions
 
 > *"How can the integration of multiple heterogeneous datasets improve the performance and generalizability of a machine learning model in detecting intrusions in IoMT environments?"*
-
-The original problem statement, scope and supervisor-approved objectives of this thesis are documented in **`docs/thesis_offer_pantelis.pdf`**, included here for readers who want the formal context behind the research question above.
 
 The work delivers three principal contributions:
 
@@ -91,6 +97,7 @@ Module map (`src/pipeline/`):
 | `quality.py` | NaN/infinity audit, type consistency check, near-zero-variance feature removal. |
 | `scaling.py` | Stratified 70/15/15 split, `StandardScaler` (fitted on train, applied to all). |
 | `exporter.py` | Persists final splits as CSV and saves the fitted scaler + run metadata to `data/processed/`. |
+| `training.py` | Model training, randomized hyperparameter search, evaluation and plotting helpers shared by notebooks 08–10. |
 | `config.py` | Centralised paths and metadata-column lists. |
 | `run_phase1.py` | CLI entry point: `python src/pipeline/run_phase1.py --category-scheme {nature,mqtt}`. |
 
@@ -175,92 +182,78 @@ This is **not** model failure but **covariate shift**: the conditional distribut
 
 ```
 diploma-thesis-iomt-ids/
-├── README.md                          # This file
+├── README.md
 ├── requirements.txt                   # Python dependencies (>= 3.10)
-├── .gitignore                         # Excludes large data/results (see Section 7)
 │
-├── src/pipeline/                      # Reusable unification pipeline (Python package)
-│   ├── config.py
+├── src/pipeline/                      # Reusable unification + training package
+│   ├── config.py                      # Paths and metadata-column lists
 │   ├── loader.py                      # MIOTTA CSV loading + provenance
 │   ├── harmonizer.py                  # 3-level label harmonization
 │   ├── quality.py                     # NaN/inf / near-zero-variance audit
 │   ├── scaling.py                     # Stratified split + StandardScaler
 │   ├── exporter.py                    # Splits + scaler + metadata persistence
+│   ├── training.py                    # Training, tuning and evaluation helpers
 │   └── run_phase1.py                  # CLI entry point
 │
-├── scripts/                           # Stand-alone helpers
-│   ├── download_datasets.sh           # Dataset download instructions
-│   ├── download_all.sh                # All-in-one download script
-│   ├── verify_datasets.py             # Checksums and structural verification
-│   ├── generate_report_figures.py     # Figures for the master's thesis report
-│   ├── generate_ch4_figures.py        # Chapter 4 figures
-│   ├── generate_dt_figures.py         # DT-specific figures
-│   ├── run_dt_tuning.py               # Stand-alone DT randomized search
-│   └── create_presentation.py         # Slide deck generator
-│
-├── notebooks/                         # Jupyter notebooks
-│   ├── 01_CICIoT2023_exploration.ipynb            # EARLY EXPLORATION ONLY - not used in final pipeline
+├── notebooks/
+│   ├── 01_CICIoT2023_exploration.ipynb            # Early exploration only, not used in the final pipeline
 │   ├── 02_CICIoMT2024_exploration.ipynb           # Dataset profiling: CICIoMT2024
 │   ├── 03_comparative_analysis.ipynb              # Early comparative analysis (exploratory)
 │   ├── 04_pipeline_proposal.ipynb                 # Early pipeline proposal (exploratory)
 │   ├── 05_IoMT-TrafficData_exploration.ipynb      # Dataset profiling: IoMT-TrafficData
 │   ├── 06_MIOTTA_datasets_exploration.ipynb       # Profiling of MIOTTA-processed datasets
-│   ├── 07_phase1_iomt_unification.ipynb           # FINAL Phase 1 unification pipeline
-│   ├── 07_phase1_iomt_unification_backup_pre_mqtt.ipynb  # Earlier version (pre MQTT-category)
-│   ├── 08_phase2_model_training.ipynb             # Decision Tree training & evaluation
-│   ├── 09_phase2_rf_training.ipynb                # Random Forest training & evaluation
-│   └── 10_phase2_xgb_training.ipynb               # XGBoost training & evaluation
+│   ├── 07_phase1_iomt_unification.ipynb           # Phase 1: unification pipeline
+│   ├── 08_phase2_model_training.ipynb             # Phase 2: Decision Tree
+│   ├── 09_phase2_rf_training.ipynb                # Phase 2: Random Forest
+│   ├── 10_phase2_xgb_training.ipynb               # Phase 2: XGBoost
+│   └── 11_hospnet26_inference.ipynb               # Real-hospital evaluation on HospNet26
 │
-├── paper/                             # LNCS-format research paper
-│   ├── main.tex                       # Paper source
-│   ├── main.pdf                       # Compiled PDF
-│   ├── references.bib                 # Bibliography
-│   └── figures/                       # cm_b1_xd_iomt.png, cm_b2_xd_cic.png,
-│                                      # cm_unified_xgb.png, per_class_f1.png
+├── scripts/
+│   ├── download_datasets.sh           # Dataset download instructions
+│   ├── download_all.sh                # All-in-one download script
+│   ├── verify_datasets.py             # Checksums and structural verification
+│   ├── run_dt_tuning.py               # Stand-alone Decision Tree randomized search
+│   ├── build_hospnet26_notebook.py    # Generates notebook 11
+│   ├── generate_report_figures.py     # Thesis figures
+│   ├── generate_ch4_figures.py        # Chapter 4 figures
+│   └── generate_dt_figures.py         # Decision Tree figures
 │
-├── report/                            # Full master's thesis report
-│   ├── main.tex / main.pdf            # Main report
-│   ├── references.bib                 # Bibliography
-│   ├── frontmatter/                   # cover.tex, abstract.tex
-│   ├── chapters/
-│   │   ├── ch1_introduction.tex
-│   │   ├── ch2_state_of_art.tex
-│   │   ├── ch3_solution_design.tex
-│   │   ├── ch4_execution.tex
-│   │   ├── ch5_experimentation.tex
-│   │   ├── ch6_sustainability.tex
-│   │   └── ch7_conclusions.tex
-│   ├── backmatter/                    # acronyms.tex, acronym_table.tex
-│   └── figures/                       # ~50 generated figures (CMs, F1, PCA, ...)
+├── paper/                             # Research paper (LNCS format)
+│   ├── main.pdf                       # Author's accepted manuscript
+│   ├── main.tex, references.bib
+│   └── figures/
 │
-├── presentations/                     # Slide deck (PPTX)
-├── references/                        # Academic / dataset reference PDFs + .bib
-├── docs/                              # Auxiliary documentation
-│   ├── thesis_offer_pantelis.pdf      # Formal thesis-offer document: problem statement,
-│   │                                  # scope and supervisor-approved objectives
-│   └── _artifacts_readme_pdf/         # Rendered README artifacts
+├── report/                            # Thesis (LaTeX)
+│   ├── main.tex / main.pdf            # UPC edition
+│   ├── main_ntua.tex                  # NTUA edition (same chapters, Greek front matter)
+│   ├── ntua/main_ntua_final.pdf       # NTUA edition, compiled
+│   ├── frontmatter/, chapters/, backmatter/, figures/
+│   └── references.bib
 │
-└── data/processed/                    # ONLY small reproducibility artifacts kept in Git:
+├── docs/
+│   └── dataset_metadata.json          # Column dictionary of the unified dataset
+│
+└── data/processed/                    # Only small reproducibility artifacts are kept in Git
     ├── phase1_iomt_unified/
-    │   ├── metadata.joblib            # Feature list, near-zero-variance dropped, label maps
-    │   └── scaler.joblib              # Fitted StandardScaler (for HospNet26 inference)
+    │   ├── metadata.joblib            # Feature list, dropped features, label maps
+    │   └── scaler.joblib              # Fitted StandardScaler
     └── phase1_iomt_unified_mqtt_category/
         ├── metadata.joblib
-        ├── scaler.joblib
+        ├── scaler.joblib              # Scaler reused for HospNet26 inference
         ├── abstract_for_Dataverse_EN.txt
-        └── ReadmeCSUC_ENG (1).txt
+        └── ReadmeCSUC_ENG (1).txt     # README of the published dataset
 ```
 
 ---
 
 ## 7. What Is and Is NOT in This Repository (and Why)
 
-This Git repository contains **only the code, notebooks, paper, report, slides, academic references and small reproducibility artifacts** (preprocessing scalers, metadata, dataverse abstract, HPC README). It does **not** contain the raw or processed network data, nor the trained model files. The exclusions, configured in `.gitignore`, are:
+This Git repository contains **only the code, notebooks, paper, thesis and small reproducibility artifacts** (preprocessing scalers, metadata, dataset README). It does **not** contain the raw or processed network data, nor the trained model files. The unified dataset itself is published separately at [doi.org/10.34810/DATA3305](https://doi.org/10.34810/DATA3305). The exclusions, configured in `.gitignore`, are:
 
 | Path | Approx. size | Reason for exclusion |
 |---|---:|---|
 | `data/raw/`                                       | ~17 GB | CIC datasets and HospNet26 are licensed by their respective providers (Canadian Institute for Cybersecurity, INESC TEC, the HospNet26 release). Redistribution via a third-party Git repository is not permitted. The data must be downloaded from the official sources. |
-| `data/processed/**/*.csv`, `**/*.parquet`         | ~13 GB | Large preprocessed splits exceed GitHub's 100 MB per-file limit (single files reach ~4.4 GB). Fully regenerable from the raw data using `src/pipeline/run_phase1.py` (or notebook 07). |
+| `data/processed/**/*.csv`, `**/*.parquet`         | ~13 GB | Large preprocessed splits exceed GitHub's 100 MB per-file limit (single files reach ~4.4 GB). Available from the dataset DOI above, or regenerable from the raw data using `src/pipeline/run_phase1.py` (or notebook 07). |
 | `data/processed/hospnet26_processed.joblib`       | 298 MB | Above GitHub's 100 MB per-file limit. Regenerable from HospNet26's combined Parquet files via the inference notebook. |
 | `results/`                                        | ~23 GB | Trained `.joblib` model files (some single files exceed **11 GB**). Beyond the size limit, serialized tree models can expose sensitive properties of the training data. Fully regenerable by running notebooks `08`/`09`/`10`. |
 | `venv/`                                           | ~750 MB | Local Python virtual environment, machine-specific. Recreate with the steps in Section 8. |
@@ -296,11 +289,11 @@ The raw datasets are not redistributed here. Obtain them from the official sourc
 
 * **CICIoMT2024** — https://www.unb.ca/cic/datasets/iomt-dataset-2024.html
 * **IoMT-TrafficData** — see the original release (INESC TEC / U. of Coimbra)
-* **HospNet26** — public release (2025); see the linked Dataverse / institutional repository
+* **HospNet26** — https://doi.org/10.34810/data3050
 
 After downloading, place the CSV/Parquet files under `data/raw/` following the layout expected by `src/pipeline/config.py`.
 
-The two IoMT datasets must additionally be reprocessed through **MIOTTA-NPT** before the unification pipeline can consume them. MIOTTA-NPT is an external tool maintained by the MIOTTA research group (see paper for the GitHub link). The required configuration is:
+The two IoMT datasets must additionally be reprocessed through **MIOTTA-NPT** before the unification pipeline can consume them. MIOTTA-NPT is an external tool maintained by the MIOTTA research group: https://github.com/miotta2025/network-preprocessing-tool. The required configuration is:
 
 ```
 mode        = combined (flow + window)
@@ -344,7 +337,7 @@ Each notebook performs randomized hyperparameter search, refits on the full trai
 
 ### 8.6 Reproducing the HospNet26 evaluation
 
-The HospNet26 inference step reuses the saved `scaler.joblib` and the tuned Unified models. It applies the *same* fitted scaler — without refitting — and runs inference on the four HospNet26 combined-feature Parquet files. The Benign prediction rate and per-class false-positive distribution reproduce the numbers in Section 5.3 of this document and Section 6 of the paper.
+Run `notebooks/11_hospnet26_inference.ipynb` (generated by `scripts/build_hospnet26_notebook.py`). The inference step reuses the saved `scaler.joblib` and the tuned Unified models. It applies the *same* fitted scaler — without refitting — and runs inference on the four HospNet26 combined-feature Parquet files. The Benign prediction rate and per-class false-positive distribution reproduce the numbers in Section 5.3 of this document and Section 6 of the paper.
 
 ---
 
@@ -366,16 +359,38 @@ Additional future directions:
 
 ## 10. Citation
 
-If you use this code or refer to the methodology, please cite the accompanying paper (see `paper/main.tex` for full BibTeX entry):
+If you use this code or refer to the methodology, please cite the paper:
 
-> Pantelis Petrakis, Jordi Domènech, Olga León, Isabel V. Martín-Faus and Josep Pegueroles.
+> P. Petrakis, J. Doménech, O. León, I. V. Martin-Faus and J. Pegueroles.
 > *Unifying Heterogeneous IoMT Datasets for Intrusion Detection: From Laboratory Testbeds to Real Hospital Network Evaluation.*
-> Universitat Politècnica de Catalunya, 2025.
+> In: Afzal, Z., Kochberger, P., Atli, B., Asplund, M. (eds) Availability, Reliability and Security. ARES 2026 International Workshops. Lecture Notes in Computer Science, vol 16901. Springer, Cham.
+> https://doi.org/10.1007/978-3-032-35579-9_7
+
+```bibtex
+@inproceedings{petrakis_unifying_iomt,
+  author    = {Petrakis, Pantelis and Dom{\'e}nech, Jordi and Le{\'o}n, Olga and Martin-Faus, Isabel V. and Pegueroles, Josep},
+  title     = {Unifying Heterogeneous {IoMT} Datasets for Intrusion Detection: From Laboratory Testbeds to Real Hospital Network Evaluation},
+  booktitle = {Availability, Reliability and Security. {ARES} 2026 International Workshops},
+  editor    = {Afzal, Zeeshan and Kochberger, Patrick and Atli, Buse and Asplund, Mikael},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {16901},
+  publisher = {Springer, Cham},
+  doi       = {10.1007/978-3-032-35579-9_7}
+}
+```
+
+For the publication year and page numbers, use the citation export on the publisher's page.
+
+If you use the unified dataset, please also cite it:
+
+> P. Petrakis, J. Doménech Fons, O. León, I. V. Martin-Faus and J. Pegueroles. *CICIoMT2024 + IoMT-TrafficData: a unified heterogeneous IoMT dataset for intrusion detection.* CORA Research Data Repository, 2026. https://doi.org/10.34810/DATA3305
+
+`paper/main.pdf` is the author-created accepted manuscript. The final authenticated version is available online at https://doi.org/10.1007/978-3-032-35579-9_7.
 
 ---
 
-## 11. License and Acknowledgements
+## 11. Acknowledgements
 
 This work was carried out at the **Information Security Group / Mathematics Applied to Cryptography (ISG-MAK)**, Universitat Politècnica de Catalunya (UPC). Partial support is acknowledged from the **INCIBE CARISMATICA Chair of Cybersecurity** and the Generalitat de Catalunya grant **2024 FI-1 00643**.
 
-The CICIoMT2024 dataset is provided by the **Canadian Institute for Cybersecurity** (University of New Brunswick). IoMT-TrafficData is provided by **INESC TEC / University of Coimbra**. HospNet26 is released by the **Helios hospital research collaboration**. All datasets remain the property of their respective providers and are subject to their original licensing terms. This repository contains no third-party data, only the code and documentation produced by the author for the purposes of this thesis.
+The CICIoMT2024 dataset is provided by the **Canadian Institute for Cybersecurity** (University of New Brunswick). IoMT-TrafficData is provided by **INESC TEC / University of Coimbra**. HospNet26 is published by its authors on the CORA Research Data Repository. All datasets remain the property of their respective providers and are subject to their original licensing terms. This repository contains no third-party data, only the code and documentation produced by the author for the purposes of this thesis.
